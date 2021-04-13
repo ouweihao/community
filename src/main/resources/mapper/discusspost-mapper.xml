@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--namespace命名空间绑定一个对应的Dao/Mapper（全路径）-->
-<mapper namespace="DiscussPostMapper">
+<mapper namespace="com.ouweihao.community.dao.DiscussPostMapper">
 
     <sql id="selectFields">
         id, user_id, title, content, type, status, create_time, comment_count, score
