@@ -1,6 +1,7 @@
 package com.ouweihao.community.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.ouweihao.community.annotation.LoginRequired;
 import com.ouweihao.community.entity.User;
 import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
@@ -141,6 +142,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    @LoginRequired
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);

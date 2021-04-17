@@ -1,5 +1,6 @@
 package com.ouweihao.community.controller;
 
+import com.ouweihao.community.annotation.LoginRequired;
 import com.ouweihao.community.dao.LoginTicketMapper;
 import com.ouweihao.community.entity.LoginTicket;
 import com.ouweihao.community.entity.User;
@@ -49,11 +50,13 @@ public class UserController {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
         return "/site/setting";
     }
 
+    @LoginRequired
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
@@ -103,6 +106,7 @@ public class UserController {
         return "redirect:/index";
     }
 
+    @LoginRequired
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 服务器存放文件的路径
@@ -129,6 +133,7 @@ public class UserController {
 
     }
 
+    @LoginRequired
     @RequestMapping(path = "/updatepassword", method = RequestMethod.POST)
     public String updatePassword(String password, @CookieValue("ticket") String ticket,
                                  String newPassword, String newPasswordConfirmed, Model model) {
