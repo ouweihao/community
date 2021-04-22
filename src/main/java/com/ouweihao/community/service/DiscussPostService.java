@@ -15,4 +15,8 @@ public interface DiscussPostService {
 
     int findDiscussPostRows(@Param("userId") int userId);
 
+    int addDiscussPost(DiscussPost discussPost);
+
+    DiscussPost findDiscussPostById(int id);
+
 }

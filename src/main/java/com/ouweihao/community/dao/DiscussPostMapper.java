@@ -2,6 +2,7 @@ package com.ouweihao.community.dao;
 
 import com.ouweihao.community.entity.DiscussPost;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,5 +21,8 @@ public interface DiscussPostMapper {
 
     int selectDiscussPostRows(@Param("userId") int userId);
 
+    int insertDiscussPost(DiscussPost post);
+
+    DiscussPost selectDiscussPostById(int id);
 
 }

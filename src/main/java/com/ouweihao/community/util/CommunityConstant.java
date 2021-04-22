@@ -23,8 +23,18 @@ public interface CommunityConstant {
     int DEFAULT_EXPIRED_TIME = 3600 * 4;
 
     /**
-     * 勾选记住我之后的登陆失效时间，一周
+     * 勾选记住我之后的登陆失效时间，四天
      */
-    int REMEMBER_EXPIRED_TIME = 3600 * 12 * 7;
+    int REMEMBER_EXPIRED_TIME = 3600 * 12 * 4;
+
+    /**
+     * 表示实体的类型：帖子
+     */
+    int ENTITY_POST = 1;
+
+    /**
+     * 表示实体的类型：评论
+     */
+    int ENTITY_COMMENT = 2;
 
 }
