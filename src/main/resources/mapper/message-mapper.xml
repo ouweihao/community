@@ -63,12 +63,25 @@
     <select id="selectUnreadLetterCount" resultType="int">
         select count(id)
         from message
-        where status != 0
+        where status = 0
         and from_id != 1
         and to_id = #{userId}
         <if test="conversationId != null">
             and conversation_id = #{conversationId}
         </if>
     </select>
+
+    <insert id="insertMessage" parameterType="Message" keyProperty="id">
+        insert into message(<include refid="insertFields"/>)
+        values (#{fromId}, #{toId}, #{conversationId}, #{content}, #{status}, #{createTime})
+    </insert>
+
+    <update id="updateStatus">
+        update message set status = #{status}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
 
 </mapper>

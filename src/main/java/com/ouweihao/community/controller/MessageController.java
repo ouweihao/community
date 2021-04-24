@@ -5,6 +5,7 @@ import com.ouweihao.community.entity.Page;
 import com.ouweihao.community.entity.User;
 import com.ouweihao.community.service.MessageService;
 import com.ouweihao.community.service.UserService;
+import com.ouweihao.community.util.CommunityUtil;
 import com.ouweihao.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,11 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class MessageController {
@@ -98,7 +97,28 @@ public class MessageController {
         User targetUser = getTargetUser(conversationId);
         model.addAttribute("targetUser", targetUser);
 
+        // 设置已读
+        List<Integer> ids = getUnreadLetterIds(letterList);
+        if (!ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
+
         return "/site/letter-detail";
+    }
+
+    private List<Integer> getUnreadLetterIds(List<Message> letterList) {
+        ArrayList<Integer> ids = new ArrayList<>();
+
+        if (letterList != null) {
+            for (Message message : letterList) {
+                if (hostHolder.getUser().getId() == message.getToId() && message.getStatus() == 0) {
+                    // 当前用户是信息的接受者，且改信息状态为未读
+                    ids.add(message.getId());
+                }
+            }
+        }
+
+        return ids;
     }
 
     private User getTargetUser(String conversationId) {
@@ -112,6 +132,38 @@ public class MessageController {
             return userService.findUserById(id0);
         }
 
+    }
+
+    @RequestMapping(path = "/letter/send", method = RequestMethod.POST)
+    @ResponseBody
+    public String sendLetter(String toName, String content) {
+        // 得到会话对象
+        User target = userService.findUserByName(toName);
+
+        if (target == null) {
+            return CommunityUtil.getJsonString(1, "对话对象不存在，请确认后再输入！！");
+        }
+
+        Message message = new Message();
+
+        message.setFromId(hostHolder.getUser().getId());
+        message.setToId(target.getId());
+
+        String conversationId = message.getFromId() > message.getToId() ? message.getToId() + "_" + message.getFromId() : message.getFromId() + "_" + message.getToId();
+        message.setConversationId(conversationId);
+
+        message.setContent(content);
+
+        message.setCreateTime(new Date());
+
+        // 刚发送的消息状态设为0
+        message.setStatus(0);
+
+        messageService.addMessage(message);
+
+        // 若为插入成功，后面统一处理
+
+        return CommunityUtil.getJsonString(0);
     }
 
 }

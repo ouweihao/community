@@ -16,4 +16,8 @@ public interface MessageService {
 
     int findUnreadLetterCount(int userId, String conversationId);
 
+    int addMessage(Message message);
+
+    int readMessage(List<Integer> ids);
+
 }
