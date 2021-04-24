@@ -139,14 +139,20 @@ public class MessageController {
     public String sendLetter(String toName, String content) {
         // 得到会话对象
         User target = userService.findUserByName(toName);
+        User sender = hostHolder.getUser();
 
         if (target == null) {
             return CommunityUtil.getJsonString(1, "对话对象不存在，请确认后再输入！！");
         }
 
+        // 不能自己给自己发送私信
+        if (target.getId() == sender.getId()) {
+            return CommunityUtil.getJsonString(1, "不能自己给自己发消息哦！亲~");
+        }
+
         Message message = new Message();
 
-        message.setFromId(hostHolder.getUser().getId());
+        message.setFromId(sender.getId());
         message.setToId(target.getId());
 
         String conversationId = message.getFromId() > message.getToId() ? message.getToId() + "_" + message.getFromId() : message.getFromId() + "_" + message.getToId();
