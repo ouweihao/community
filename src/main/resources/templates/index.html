@@ -29,7 +29,7 @@
 								<a class="nav-link" th:href="@{/index}">首页</a>
 							</li>
 							<li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser!=null}">
-								<a class="nav-link position-relative" href="site/letter.html">消息<span
+								<a class="nav-link position-relative" th:href="@{/letter/list}">消息<span
 										class="badge badge-danger">12</span></a>
 							</li>
 							<li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
@@ -147,18 +147,18 @@
 					</li>
 				</ul>
 				<!-- 分页 -->
-				<nav class="mt-5" th:if="${page.rows > 0}" th:fragment="pagination">
+				<nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">
 					<ul class="pagination justify-content-center">
 						<li class="page-item">
-							<a class="page-link" th:href="@{${page.path}(current = 1)}">首页</a>
+							<a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>
 						</li>
-						<li th:class="|page-item ${page.current==1?'disable':''}|">
+						<li th:class="|page-item ${page.current==1?'disabled':''}|">
 							<a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a></li>
 						<li th:class="|page-item ${i==page.current?'active':''}|"
 							th:each="i:${#numbers.sequence(page.from,page.to)}">
 							<a class="page-link" href="#" th:text="${i}">1</a>
 						</li>
-						<li th:class="|page-item ${page.current==page.total?'disable':''}|">
+						<li th:class="|page-item ${page.current==page.total?'disabled':''}|">
 							<a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a>
 						</li>
 						<li class="page-item">

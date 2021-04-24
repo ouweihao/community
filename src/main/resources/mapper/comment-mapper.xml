@@ -4,8 +4,13 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--namespace命名空间绑定一个对应的Dao/Mapper（全路径）-->
 <mapper namespace="com.ouweihao.community.dao.CommentMapper">
+
     <sql id="selectFields">
         id, user_id, entity_type, entity_id, target_id, content, status, create_time
+    </sql>
+
+    <sql id="insertFields">
+        user_id, entity_type, entity_id, target_id, content, status, create_time
     </sql>
 
     <select id="selectCommentsByEntity" resultType="Comment">
@@ -26,5 +31,10 @@
           and entity_type = #{entityType}
           and entity_id = #{entityId}
     </select>
+
+    <insert id="insertComment">
+        insert into comment(<include refid="insertFields"/>)
+        values (#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{status}, #{createTime})
+    </insert>
 
 </mapper>

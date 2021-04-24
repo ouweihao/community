@@ -2,9 +2,12 @@ package com.ouweihao.community;
 
 import com.ouweihao.community.dao.DiscussPostMapper;
 import com.ouweihao.community.dao.LoginTicketMapper;
+import com.ouweihao.community.dao.MessageMapper;
 import com.ouweihao.community.dao.UserMapper;
 import com.ouweihao.community.entity.DiscussPost;
 import com.ouweihao.community.entity.LoginTicket;
+import com.ouweihao.community.entity.Message;
+import org.apache.ibatis.annotations.Mapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,9 @@ public class MapperTests {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private MessageMapper messageMapper;
 
     @Test
     public void testSelectPosts() {
@@ -61,6 +67,29 @@ public class MapperTests {
 
         loginTicket = loginTicketMapper.selectLoginTicket("abc");
         System.out.println(loginTicket);
+    }
+
+    @Test
+    public void testMessageMapper() {
+        List<Message> messageList = messageMapper.selectConversations(111, 0, 20);
+        for (Message message : messageList) {
+            System.out.println(message);
+        }
+
+        int count = messageMapper.selectConversationCount(111);
+        System.out.println(count);
+
+        messageList = messageMapper.selectLetters("111_112", 0, 10);
+        for (Message message : messageList) {
+            System.out.println(message);
+        }
+
+        count = messageMapper.selectLetterCount("111_112");
+        System.out.println(count);
+
+        count = messageMapper.selectUnreadLetterCount(131, "111_131");
+        System.out.println(count);
+
     }
 
 }
