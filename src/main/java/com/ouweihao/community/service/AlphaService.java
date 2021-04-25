@@ -6,7 +6,6 @@ import com.ouweihao.community.entity.DiscussPost;
 import com.ouweihao.community.entity.User;
 import com.ouweihao.community.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Isolation;
@@ -19,7 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Date;
 
-@Service
+//@Service
 public class AlphaService {
 
     @Autowired
