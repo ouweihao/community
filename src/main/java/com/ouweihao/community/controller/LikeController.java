@@ -26,13 +26,16 @@ public class LikeController {
     @LoginRequired
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
-    public String like(int entityType, int entityId) {
+    public String like(int entityType, int entityId, int entityAuthorId) {
 
         // 得到当前用户
         User currentUser = hostHolder.getUser();
+        if (currentUser == null) {
+            return CommunityUtil.getJsonString(1, "您还未登录！");
+        }
 
         // 点赞行为
-        likeService.like(currentUser.getId(), entityType, entityId);
+        likeService.like(currentUser.getId(), entityType, entityId, entityAuthorId);
 
         // 点赞总数
         long likeCount = likeService.findEntityLikeCount(entityType, entityId);

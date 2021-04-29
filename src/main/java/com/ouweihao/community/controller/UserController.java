@@ -2,8 +2,8 @@ package com.ouweihao.community.controller;
 
 import com.ouweihao.community.annotation.LoginRequired;
 import com.ouweihao.community.dao.LoginTicketMapper;
-import com.ouweihao.community.entity.LoginTicket;
 import com.ouweihao.community.entity.User;
+import com.ouweihao.community.service.LikeService;
 import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityUtil;
 import com.ouweihao.community.util.HostHolder;
@@ -40,6 +40,9 @@ public class UserController {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private LikeService likeService;
 
     @Value("${community.path.domain}")
     private String domain;
@@ -106,7 +109,8 @@ public class UserController {
         return "redirect:/index";
     }
 
-    @LoginRequired
+//    @LoginRequired
+
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 服务器存放文件的路径
@@ -168,6 +172,19 @@ public class UserController {
         userService.logout(ticket);
         return "redirect:/login";
 
+    }
+
+    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+        // 得到用户
+        User user = userService.findUserById(userId);
+        model.addAttribute("user", user);
+
+        // 得到他获得了多少个赞
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+
+        return "/site/profile";
     }
 
 }

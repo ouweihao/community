@@ -1,5 +1,6 @@
 package com.ouweihao.community.controller;
 
+import com.ouweihao.community.annotation.LoginRequired;
 import com.ouweihao.community.entity.Comment;
 import com.ouweihao.community.service.CommentService;
 import com.ouweihao.community.util.HostHolder;
@@ -21,8 +22,9 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
+    @LoginRequired
     @RequestMapping(path = "/add/{postId}", method = RequestMethod.POST)
-    public String adComment(@PathVariable("postId") int postId, Comment comment) {
+    public String addComment(@PathVariable("postId") int postId, Comment comment) {
         // 添加评论所未填写的信息
         comment.setUserId(hostHolder.getUser().getId());
         comment.setStatus(0);
