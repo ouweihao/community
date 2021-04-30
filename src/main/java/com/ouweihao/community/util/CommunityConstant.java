@@ -37,4 +37,9 @@ public interface CommunityConstant {
      */
     int ENTITY_COMMENT = 2;
 
+    /**
+     * 表示实体的类型：用户
+     */
+    int ENTITY_USER = 3;
+
 }

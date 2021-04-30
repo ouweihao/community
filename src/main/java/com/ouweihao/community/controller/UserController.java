@@ -3,8 +3,10 @@ package com.ouweihao.community.controller;
 import com.ouweihao.community.annotation.LoginRequired;
 import com.ouweihao.community.dao.LoginTicketMapper;
 import com.ouweihao.community.entity.User;
+import com.ouweihao.community.service.FollowService;
 import com.ouweihao.community.service.LikeService;
 import com.ouweihao.community.service.UserService;
+import com.ouweihao.community.util.CommunityConstant;
 import com.ouweihao.community.util.CommunityUtil;
 import com.ouweihao.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +30,7 @@ import java.io.OutputStream;
 
 @Controller
 @RequestMapping(path = "/user")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -43,6 +45,9 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private FollowService followService;
 
     @Value("${community.path.domain}")
     private String domain;
@@ -183,6 +188,22 @@ public class UserController {
         // 得到他获得了多少个赞
         int likeCount = likeService.findUserLikeCount(userId);
         model.addAttribute("likeCount", likeCount);
+
+        // 得到关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_USER);
+        model.addAttribute("followeeCount", followeeCount);
+
+        // 得到粉丝数量
+        long followerCount = followService.findFollowerCount(ENTITY_USER, userId);
+        model.addAttribute("followerCount", followerCount);
+
+        // 关注状态
+        boolean hasFollowed = false;
+        if (hostHolder.getUser() != null) {
+            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_USER, userId);
+        }
+        model.addAttribute("hasFollowed", hasFollowed);
+
 
         return "/site/profile";
     }
