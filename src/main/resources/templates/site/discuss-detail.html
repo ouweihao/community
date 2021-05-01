@@ -129,14 +129,15 @@
 				<ul class="list-unstyled mt-4">
 					<!-- 第1条回帖 -->
 					<li class="media pb-3 pt-3 mb-3 border-bottom" th:each="commentvo:${comments}">
-						<a href="profile.html">
+						<a th:href="@{|/user/profile/${commentvo.user.id}|}">
 							<img th:src="${commentvo.user.headerUrl}"
 								 class="align-self-start mr-4 rounded-circle user-header" alt="用户头像">
 						</a>
 						<div class="media-body">
 							<div class="mt-0">
-								<span class="font-size-12 text-success"
-									  th:utext="${commentvo.user.username}">掉脑袋切切</span>
+								<a class="font-size-12 text-success"
+								   th:utext="${commentvo.user.username}"
+								   th:href="@{|/user/profile/${commentvo.user.id}|}">掉脑袋切切</a>
 								<span class="badge badge-secondary float-right floor">
 									<i th:text="${page.offSet + commentvoStat.count}">1</i>#
 								</span>
@@ -167,11 +168,14 @@
 								<li class="pb-3 pt-3 mb-3 border-bottom" th:each="replyvo:${commentvo.replys}">
 									<div>
 										<span th:if="${replyvo.target==null}">
-											<b class="text-info" th:utext="${replyvo.user.username}">寒江雪</b>:&nbsp;&nbsp;
+											<a class="text-info" th:utext="${replyvo.user.username}"
+											   th:href="@{|/user/profile/${replyvo.user.id}|}">寒江雪</a>:&nbsp;&nbsp;
 										</span>
 										<span th:if="${replyvo.target!=null}">
-											<b class="text-info" th:utext="${replyvo.user.username}">寒江雪</b>:&nbsp;&nbsp; 回复
-											<b class="text-info" th:utext="${replyvo.target.username}">寒江雪</b>:&nbsp;&nbsp;
+											<a class="text-info" th:utext="${replyvo.user.username}"
+											   th:href="@{|/user/profile/${replyvo.user.id}|}">寒江雪</a>:&nbsp;&nbsp; 回复
+											<a class="text-info" th:utext="${replyvo.target.username}"
+											   th:href="@{|/user/profile/${replyvo.target.id}|}">寒江雪</a>:&nbsp;&nbsp;
 										</span>
 										<span th:utext="${replyvo.reply.content}">这个是直播时间哈，觉得晚的话可以直接看之前的完整录播的~</span>
 									</div>

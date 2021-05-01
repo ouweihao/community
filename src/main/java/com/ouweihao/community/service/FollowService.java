@@ -1,5 +1,8 @@
 package com.ouweihao.community.service;
 
+import java.util.List;
+import java.util.Map;
+
 public interface FollowService {
 
     void follow(int userId, int entityType, int entityId);
@@ -33,5 +36,25 @@ public interface FollowService {
      * @return 是否关注
      */
     boolean hasFollowed(int userId, int entityType, int entityId);
+
+    /**
+     * 返回一个用户的关注列表的所有用户
+     *
+     * @param userId 被查询用户的id
+     * @param offset 用于分页
+     * @param limit  用于分页
+     * @return 用户和关注时间的map所组成的list
+     */
+    List<Map<String, Object>> findFollowees(int userId, int offset, int limit);
+
+    /**
+     * 返回所有粉丝
+     *
+     * @param userId 实体Id
+     * @param offset 用于分页
+     * @param limit  用于分页
+     * @return 粉丝和粉丝所关注的时间组合成的map所组成的list
+     */
+    List<Map<String, Object>> findFollowers(int userId, int offset, int limit);
 
 }
