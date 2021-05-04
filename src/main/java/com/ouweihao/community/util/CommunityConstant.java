@@ -20,12 +20,12 @@ public interface CommunityConstant {
     /**
      * 默认的登陆失效时间，四小时
      */
-    int DEFAULT_EXPIRED_TIME = 3600 * 4;
+    int DEFAULT_EXPIRED_TIME = 60 * 60 * 4;
 
     /**
      * 勾选记住我之后的登陆失效时间，四天
      */
-    int REMEMBER_EXPIRED_TIME = 3600 * 12 * 4;
+    int REMEMBER_EXPIRED_TIME = 60 * 60 * 12 * 4;
 
     /**
      * 表示实体的类型：帖子
@@ -41,5 +41,25 @@ public interface CommunityConstant {
      * 表示实体的类型：用户
      */
     int ENTITY_USER = 3;
+
+    /**
+     * 主题：关注
+     */
+    String TOPIC_FOLLOW = "follow";
+
+    /**
+     * 主题：点赞
+     */
+    String TOPIC_LIKE = "like";
+
+    /**
+     * 主题：评论
+     */
+    String TOPIC_COMMENT = "comment";
+
+    /**
+     * 系统用户Id
+     */
+    int SYSTEM_USER_ID = 1;
 
 }

@@ -90,12 +90,13 @@
 							<ul class="d-inline float-right">
 								<!-- 在href中填入javascript:;表示这个链接当做一个button用 -->
                                 <li class="d-inline ml-2">
-                                    <a href="javascript:;" th:onclick="|like(this, 1, ${post.id}, ${author.id});|"
-                                       class="text-primary">
-                                        <b th:text="${likeStatus == 0 ? '赞' : '已赞'}">赞</b>
-                                        <i th:text="${likeCount}">11</i>
-                                        <!--<span th:text="${post.commentCount}">11</span>-->
-                                    </a>
+                                    <a href="javascript:;"
+									   th:onclick="|like(this, 1, ${post.id}, ${author.id}, ${post.id});|"
+									   class="text-primary">
+										<b th:text="${likeStatus == 0 ? '赞' : '已赞'}">赞</b>
+										<i th:text="${likeCount}">11</i>
+										<!--<span th:text="${post.commentCount}">11</span>-->
+									</a>
                                 </li>
 								<li class="d-inline ml-2">|</li>
 								<li class="d-inline ml-2"><a href="#replyform" class="text-primary">回帖 <span
@@ -151,8 +152,8 @@
 								<ul class="d-inline float-right">
                                     <li class="d-inline ml-2">
                                         <a href="javascript:;"
-                                           th:onclick="|like(this, 2, ${commentvo.comment.id}, ${commentvo.comment.userId})|"
-                                           class="text-primary">
+										   th:onclick="|like(this, 2, ${commentvo.comment.id}, ${commentvo.comment.userId}, ${post.id})|"
+										   class="text-primary">
                                             <b th:text="${commentvo.likeStatus==0?'赞':'已赞'}">赞</b>(<i
                                                 th:text="${commentvo.likeCount}">1</i>)
                                         </a>
@@ -184,8 +185,8 @@
 										<ul class="d-inline float-right">
                                             <li class="d-inline ml-2">
                                                 <a href="javascript:;"
-                                                   th:onclick="|like(this, 2, ${replyvo.reply.id}, ${replyvo.reply.userId})|"
-                                                   class="text-primary">
+												   th:onclick="|like(this, 2, ${replyvo.reply.id}, ${replyvo.reply.userId}, ${post.id})|"
+												   class="text-primary">
                                                     <b th:text="${replyvo.likeStatus==0?'赞':'已赞'}">赞</b>(<i
                                                         th:text="${replyvo.likeCount}">1</i>)
                                                 </a>

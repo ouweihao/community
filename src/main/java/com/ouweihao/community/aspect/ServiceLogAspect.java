@@ -29,6 +29,12 @@ public class ServiceLogAspect {
     public void before(JoinPoint joinPoint) {
         // 用户[ip地址]在[时间]访问[某方法]
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        // 有可能报错，因为我们在这里假设我们所有的service都是通过controller调用的，
+        // 但是后面的发送系统消息的eventConsumer是没有通过controller直接调用的service，所以他的request可能为空，
+        // 所以我们在这里要对request进行判空操作
+        if (attributes == null) {
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());

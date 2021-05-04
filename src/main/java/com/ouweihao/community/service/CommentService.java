@@ -7,6 +7,14 @@ import java.util.List;
 public interface CommentService {
 
     /**
+     * 根据评论Id查找评论
+     *
+     * @param id 评论Id
+     * @return 评论
+     */
+    Comment findCommentById(int id);
+
+    /**
      * 根据用户的实体类型和对应类型下的id实现分页查询
      *
      * @param entityType 评论对应的类型，是对评论的回复还是对帖子的评论

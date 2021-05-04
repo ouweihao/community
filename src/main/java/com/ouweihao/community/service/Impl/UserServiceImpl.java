@@ -1,6 +1,5 @@
 package com.ouweihao.community.service.Impl;
 
-import com.ouweihao.community.dao.LoginTicketMapper;
 import com.ouweihao.community.dao.UserMapper;
 import com.ouweihao.community.entity.LoginTicket;
 import com.ouweihao.community.entity.User;
@@ -8,9 +7,11 @@ import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
 import com.ouweihao.community.util.CommunityUtil;
 import com.ouweihao.community.util.MailClient;
+import com.ouweihao.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl implements UserService, CommunityConstant {
@@ -32,8 +34,11 @@ public class UserServiceImpl implements UserService, CommunityConstant {
     @Autowired
     private TemplateEngine templateEngine;
 
+//    @Autowired
+//    private LoginTicketMapper loginTicketMapper;
+
     @Autowired
-    private LoginTicketMapper loginTicketMapper;
+    private RedisTemplate redisTemplate;
 
     @Value("${community.path.domain}")
     private String domain;
@@ -43,8 +48,37 @@ public class UserServiceImpl implements UserService, CommunityConstant {
 
     @Override
     public User findUserById(int id) {
-        return userMapper.selectById(id);
+//        return userMapper.selectById(id);
+        User user = getCacheUser(id);
+        if (user == null) {
+            user = initCacheUser(id);
+        }
+        return user;
     }
+
+    // 1. 优先从缓存中取值
+
+    private User getCacheUser(int userId) {
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        return (User) redisTemplate.opsForValue().get(userKey);
+    }
+
+    // 2. 若缓存中没有则初始化存入缓存
+
+    private User initCacheUser(int userId) {
+        User user = userMapper.selectById(userId);
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.opsForValue().set(userKey, user, 1, TimeUnit.HOURS);
+        return user;
+    }
+
+    // 3. 变更时删除缓存
+
+    private void clearCacheUser(int userId) {
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(userKey);
+    }
+
 
     @Override
     public User findUserByName(String username) {
@@ -115,6 +149,7 @@ public class UserServiceImpl implements UserService, CommunityConstant {
             return ACTIVATION_REPEAT;
         } else if (user.getActivationCode().equals(activationCode)) {
             userMapper.updateStatus(userId, 1);
+            clearCacheUser(userId);
             return ACTIVATION_SUCCESS;
         } else {
             return ACTIVATION_FAILURE;
@@ -159,7 +194,11 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         loginTicket.setStatus(0);
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-        loginTicketMapper.insertLoginTicket(loginTicket);
+//        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        String ticketKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+        // 直接存对象，在redis中会序列化成JSON对象
+        redisTemplate.opsForValue().set(ticketKey, loginTicket);
 
         // 将登陆凭证存进map
         map.put("ticket", loginTicket.getTicket());
@@ -169,17 +208,24 @@ public class UserServiceImpl implements UserService, CommunityConstant {
 
     @Override
     public void logout(String ticket) {
-        loginTicketMapper.updateStatus(ticket, 1);
+//        loginTicketMapper.updateStatus(ticket, 1);
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket);
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(ticketKey);
+        loginTicket.setStatus(1);
     }
 
     @Override
     public LoginTicket findLoginTicket(String ticket) {
-        return loginTicketMapper.selectLoginTicket(ticket);
+//        return loginTicketMapper.selectLoginTicket(ticket);
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket);
+        return ((LoginTicket) redisTemplate.opsForValue().get(ticketKey));
     }
 
     @Override
     public int updateHeader(int userId, String headerUrl) {
-        return userMapper.updateHeader(userId, headerUrl);
+        int rows = userMapper.updateHeader(userId, headerUrl);
+        clearCacheUser(userId);
+        return rows;
     }
 
     @Override
@@ -190,7 +236,11 @@ public class UserServiceImpl implements UserService, CommunityConstant {
 
         password = CommunityUtil.MD5(password + user.getSalt());
 
-        return userMapper.updatePassword(userId, password);
+        int rows = userMapper.updatePassword(userId, password);
+
+        clearCacheUser(userId);
+
+        return rows;
     }
 
 }

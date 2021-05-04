@@ -32,6 +32,11 @@ public class CommentServiceImpl implements CommentService, CommunityConstant {
     private DiscussPostService discussPostService;
 
     @Override
+    public Comment findCommentById(int id) {
+        return commentMapper.selectCommentById(id);
+    }
+
+    @Override
     public List<Comment> findCommentByEntity(int entityType, int entityId, int offset, int limit) {
         return commentMapper.selectCommentsByEntity(entityType, entityId, offset, limit);
     }

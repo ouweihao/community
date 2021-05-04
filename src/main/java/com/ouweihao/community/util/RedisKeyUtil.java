@@ -14,6 +14,16 @@ public class RedisKeyUtil {
 
     private static final String FOLLOWER_PREFIX = "follower";
 
+    // 验证码前缀
+
+    private static final String KAPTCHA_PREFIX = "kaptcha";
+
+    // 生成登录凭证的前缀
+
+    private static final String TICKET_PREFIX = "ticket";
+
+    private static final String USER_PREFIX = "user";
+
     // 形如like:entity:entityType:entityId
     // 帖子或评论的赞在redis中是一个集合，集合名称是like：entity:实体类型:实体id，里面存的是userId，
     // 可以查看谁给你点过赞（通过userId）和赞的总数（返回set中userId的个数）
@@ -51,6 +61,36 @@ public class RedisKeyUtil {
      */
     public static String getFollowerKey(int entityType, int entityId) {
         return FOLLOWER_PREFIX + SPLIT + entityType + SPLIT + entityId;
+    }
+
+    /**
+     * 生成验证码的键
+     *
+     * @param owner 随机字符串，用于标识用户
+     * @return 形如kaptcha:owner的字符串
+     */
+    public static String getKaptchaKey(String owner) {
+        return KAPTCHA_PREFIX + SPLIT + owner;
+    }
+
+    /**
+     * 返回存储登录凭证的键名
+     *
+     * @param ticket 随机生成的字符串，唯一标识一个用户
+     * @return 形如ticket:随机字符串的字符串
+     */
+    public static String getTicketKey(String ticket) {
+        return TICKET_PREFIX + SPLIT + ticket;
+    }
+
+    /**
+     * 生成存储在redis中的对象的键，以userId为唯一标识符
+     *
+     * @param userId 用户Id
+     * @return 形如user:userId的字符串
+     */
+    public static String getUserKey(int userId) {
+        return USER_PREFIX + SPLIT + userId;
     }
 
 }

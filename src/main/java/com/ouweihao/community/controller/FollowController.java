@@ -1,7 +1,9 @@
 package com.ouweihao.community.controller;
 
+import com.ouweihao.community.entity.Event;
 import com.ouweihao.community.entity.Page;
 import com.ouweihao.community.entity.User;
+import com.ouweihao.community.event.EventProducer;
 import com.ouweihao.community.service.FollowService;
 import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
@@ -28,14 +30,26 @@ public class FollowController implements CommunityConstant {
     private UserService userService;
 
     @Autowired
+    private EventProducer eventProducer;
+
+    @Autowired
     private HostHolder hostHolder;
 
     @RequestMapping(path = "/follow", method = RequestMethod.POST)
     @ResponseBody
     public String follow(int entityType, int entityId) {
-        User user = hostHolder.getUser();
+        User currentUser = hostHolder.getUser();
 
-        followService.follow(user.getId(), entityType, entityId);
+        followService.follow(currentUser.getId(), entityType, entityId);
+
+        Event event = new Event();
+        event.setTopic(TOPIC_FOLLOW)
+                .setUserId(currentUser.getId())
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setAuthorId(entityId);
+
+        eventProducer.fireEvent(event);
 
         return CommunityUtil.getJsonString(0, "关注成功！！");
     }
