@@ -36,4 +36,42 @@ public interface MessageMapper {
 
     int updateStatus(List<Integer> ids, int status);
 
+    /**
+     * 查询某个主题下最新的通知
+     *
+     * @param userId 某用户
+     * @param topic  主题
+     * @return 某主题下最新的一个通知
+     */
+    Message selectLatestNotice(int userId, String topic);
+
+    /**
+     * 某用户某主题下通知的数量
+     *
+     * @param userId 用户Id
+     * @param topic  主题
+     * @return 通知数量
+     */
+    int selectNoticeCount(int userId, String topic);
+
+    /**
+     * 某用户某主题下未读消息的数量
+     *
+     * @param userId 用户Id
+     * @param topic  主题
+     * @return 未读消息数量
+     */
+    int selectUnreadNoticeCount(int userId, String topic);
+
+    /**
+     * 查询某用户某一主题下所有的系统通知
+     *
+     * @param userId 用户ID
+     * @param topic  主题
+     * @param limit  每页显示数量
+     * @param offset 偏移
+     * @return
+     */
+    List<Message> selectNotices(int userId, String topic, int offset, int limit);
+
 }
