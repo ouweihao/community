@@ -79,5 +79,4 @@ public class MessageServiceImpl implements MessageService {
         return messageMapper.selectNotices(userId, topic, offset, limit);
     }
 
-
 }
