@@ -1,8 +1,11 @@
 package com.ouweihao.community.event;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ouweihao.community.entity.DiscussPost;
 import com.ouweihao.community.entity.Event;
 import com.ouweihao.community.entity.Message;
+import com.ouweihao.community.service.DiscussPostService;
+import com.ouweihao.community.service.ElasticSearchService;
 import com.ouweihao.community.service.MessageService;
 import com.ouweihao.community.util.CommunityConstant;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -23,6 +26,12 @@ public class EventConsumer implements CommunityConstant {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private DiscussPostService discussPostService;
+
+    @Autowired
+    private ElasticSearchService elasticSearchService;
 
     /**
      * 消费事件
@@ -62,6 +71,31 @@ public class EventConsumer implements CommunityConstant {
         message.setContent(JSONObject.toJSONString(content));
 
         messageService.addMessage(message);
+
+    }
+
+    /**
+     * 消费发帖事件
+     */
+    @KafkaListener(topics = {TOPIC_PUBLISH})
+    public void handlePublishEvent(ConsumerRecord record) {
+
+        if (record == null || record.value() == null) {
+            LOGGER.error("消息内容为空！！");
+            return;
+        }
+
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+
+        if (event == null) {
+            LOGGER.error("消息格式不正确！！");
+            return;
+        }
+
+        DiscussPost post = discussPostService.findDiscussPostById(event.getEntityId());
+
+        // 将查询到的service作为备份存在elasticsearch中
+        elasticSearchService.saveDiscussPost(post);
 
     }
 

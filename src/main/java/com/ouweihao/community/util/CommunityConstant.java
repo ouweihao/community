@@ -58,6 +58,11 @@ public interface CommunityConstant {
     String TOPIC_COMMENT = "comment";
 
     /**
+     * 主题帖子
+     */
+    String TOPIC_PUBLISH = "publish";
+
+    /**
      * 系统用户Id
      */
     int SYSTEM_USER_ID = 1;

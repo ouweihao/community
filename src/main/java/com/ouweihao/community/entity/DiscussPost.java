@@ -1,20 +1,55 @@
 package com.ouweihao.community.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import java.util.Date;
 
 /**
  * @author owh
  */
+
+/**
+ * indexName：实体在elasticsearch库中对应的索引名
+ * type：被弱化，不重要
+ * shards：分片数
+ * replicas：备份数
+ */
+@Document(indexName = "discusspost", type = "_doc", shards = 6, replicas = 3)
 public class DiscussPost {
 
+    @Id
     private int id;
+
+    @Field(type = FieldType.Integer)
     private int userId;
+
+    /**
+     * type：指定类型
+     * analyzer：存储时的分词器，希望是拆分的粒度越小越好
+     * searchAnalyzer：搜索时的分词器，我们希望搜索时的粒度不要太粗或太细，这时我们需要一种粒度比较合适的分词器
+     */
+    @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     private String title;
+
+    @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     private String content;
+
+    //    @Field(type = FieldType.Integer)
     private int type;
+
+    //    @Field(type = FieldType.Integer)
     private int status;
+
+    //    @Field(type = FieldType.Date)
     private Date createTime;
+
+    //    @Field(type = FieldType.Integer)
     private int commentCount;
+
+    //    @Field(type = FieldType.Double)
     private double score;
 
     public int getId() {

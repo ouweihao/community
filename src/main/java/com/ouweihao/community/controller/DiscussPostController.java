@@ -1,9 +1,7 @@
 package com.ouweihao.community.controller;
 
-import com.ouweihao.community.entity.Comment;
-import com.ouweihao.community.entity.DiscussPost;
-import com.ouweihao.community.entity.Page;
-import com.ouweihao.community.entity.User;
+import com.ouweihao.community.entity.*;
+import com.ouweihao.community.event.EventProducer;
 import com.ouweihao.community.service.CommentService;
 import com.ouweihao.community.service.DiscussPostService;
 import com.ouweihao.community.service.LikeService;
@@ -40,25 +38,36 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
 //    @LoginRequired
 
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {
-        User user = hostHolder.getUser();
+        User currentUser = hostHolder.getUser();
 
         // 若未登陆则无法发布帖子
-        if (user == null) {
+        if (currentUser == null) {
             return CommunityUtil.getJsonString(403, "您还未登陆哦！！");
         }
 
         DiscussPost post = new DiscussPost();
 
-        post.setUserId(user.getId());
+        post.setUserId(currentUser.getId());
         post.setTitle(title);
         post.setContent(content);
         post.setCreateTime(new Date());
         discussPostService.addDiscussPost(post);
+
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setEntityType(ENTITY_POST)
+                .setEntityId(post.getId())
+                .setAuthorId(currentUser.getId());
+
+        eventProducer.fireEvent(event);
 
         // 后面将统一处理异常
         return CommunityUtil.getJsonString(0, "发布成功！");
