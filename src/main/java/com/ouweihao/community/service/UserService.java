@@ -2,7 +2,9 @@ package com.ouweihao.community.service;
 
 import com.ouweihao.community.entity.LoginTicket;
 import com.ouweihao.community.entity.User;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.Map;
 
 public interface UserService {
@@ -24,4 +26,12 @@ public interface UserService {
     int updateHeader(int userId, String headerUrl);
 
     int updatePassword(int userId, String password);
+
+    /**
+     * 返回用户的权限情况
+     *
+     * @param userId 所要查询的用户的id
+     * @return 用户的权限情况
+     */
+    Collection<? extends GrantedAuthority> getAuthorities(int userId);
 }

@@ -6,6 +6,14 @@ $(function(){
 function publish() {
     $("#publishModal").modal("hide");
 
+    // 发送AJAX请求之前，将CSRF令牌设置到请求头中
+    // var token = $("meta[name='_csrf']").attr("content");
+    // var header = $("meta[name='_csrf_header']").attr("content");
+    // $(document).ajaxSend(function (e, xhr, options) {
+    //     // 发请求时就会携带防csrf攻击的数据
+    //     xhr.setRequestHeader(header, token);
+    // });
+
     // 得到title和content
     var title = $("#recipient-name").val();
     var content = $("#message-text").val();

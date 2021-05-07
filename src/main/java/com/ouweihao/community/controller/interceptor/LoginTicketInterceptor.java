@@ -6,12 +6,18 @@ import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CookieUtil;
 import com.ouweihao.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
 import java.util.Date;
 
 @Component
@@ -38,6 +44,14 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 User user = userService.findUserById(loginTicket.getUserId());
                 // 在本次中持有用户
                 hostHolder.setUser(user);
+
+                // 构建用户认证的结果，并存入SecurityContext中，以便于Security进行授权
+                Collection<? extends GrantedAuthority> authorities = userService.getAuthorities(user.getId());
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        user, user.getPassword(), authorities);
+
+                // 摄者SecurityHostHolder的内容
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
 
@@ -61,6 +75,9 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        // 销毁user
         hostHolder.clear();
+        // 清除权限
+        SecurityContextHolder.clearContext();
     }
 }
