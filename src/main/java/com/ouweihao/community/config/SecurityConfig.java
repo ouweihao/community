@@ -15,7 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.PrintWriter;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements CommunityConstant {
@@ -47,41 +47,52 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         AUTHORITY_MODERATOR,
                         AUTHORITY_USER
                 )
-                .anyRequest().permitAll()
-                .and().csrf().disable();
+                .antMatchers(
+                        "/discuss/top",
+                        "/discuss/wonderful"
+                )
+                .hasAnyAuthority(
+                        AUTHORITY_MODERATOR,
+                        AUTHORITY_ADMIN
+                )
+                .antMatchers(
+                        "/discuss/delete"
+                )
+                .hasAnyAuthority(
+                        AUTHORITY_ADMIN
+                )
+                .anyRequest()
+                .permitAll()
+                .and()
+                .csrf()
+                .disable();
 
         // 权限不够时的处理
         http.exceptionHandling()
                 .authenticationEntryPoint(new AuthenticationEntryPoint() {
-                    // 没有登录时的处理
+                    // 没有登录
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-                        // 得到请求方式，如果是XMLHttpRequest的话，就返回JSON格式的字符串
-                        String xRequestWith = request.getHeader("x-request-with");
-                        if ("XMLHttpRequest".equals(xRequestWith)) {
-                            // 是通过异步的方式请求，返回JSON格式的字符串
+                        String xRequestedWith = request.getHeader("x-requested-with");
+                        if ("XMLHttpRequest".equals(xRequestedWith)) {
                             response.setContentType("application/plain;charset=utf-8");
-                            Writer writer = response.getWriter();
-                            writer.write(CommunityUtil.getJsonString(403, "你还没登录！！"));
+                            PrintWriter writer = response.getWriter();
+                            writer.write(CommunityUtil.getJsonString(403, "你还没有登录哦!"));
                         } else {
-                            // 直接重定向到登录页面
                             response.sendRedirect(request.getContextPath() + "/login");
                         }
                     }
                 })
                 .accessDeniedHandler(new AccessDeniedHandler() {
-                    // 权限不够时的处理
+                    // 权限不足
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException e) throws IOException, ServletException {
-                        // 得到请求方式，如果是XMLHttpRequest的话，就返回JSON格式的字符串
-                        String xRequestWith = request.getHeader("x-request-with");
-                        if ("XMLHttpRequest".equals(xRequestWith)) {
-                            // 是通过异步的方式请求，返回JSON格式的字符串
+                        String xRequestedWith = request.getHeader("x-requested-with");
+                        if ("XMLHttpRequest".equals(xRequestedWith)) {
                             response.setContentType("application/plain;charset=utf-8");
-                            Writer writer = response.getWriter();
-                            writer.write(CommunityUtil.getJsonString(403, "你没有访问此功能的权限！！"));
+                            PrintWriter writer = response.getWriter();
+                            writer.write(CommunityUtil.getJsonString(403, "你没有访问此功能的权限!"));
                         } else {
-                            // 直接重定向到登录页面
                             response.sendRedirect(request.getContextPath() + "/denied");
                         }
                     }

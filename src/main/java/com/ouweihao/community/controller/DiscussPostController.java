@@ -190,4 +190,64 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
+    // 置顶
+
+    @RequestMapping(path = "/top", method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int postId/*, int type*/) {
+        // 1表示置顶，0表示正常的帖子
+        discussPostService.updateType(postId, 1);
+
+        // 触发一次发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setEntityType(ENTITY_POST)
+                .setEntityId(postId)
+                .setUserId(hostHolder.getUser().getId());
+
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 加精
+
+    @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
+    @ResponseBody
+    public String setWonderful(int postId) {
+        // 1表示帖子加精，0表示正常的帖子
+        discussPostService.updateStatus(postId, 1);
+
+        // 触发一次发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setEntityType(ENTITY_POST)
+                .setEntityId(postId)
+                .setUserId(hostHolder.getUser().getId());
+
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 拉黑
+
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String setDelete(int postId) {
+        // 2表示帖子被拉黑
+        discussPostService.updateStatus(postId, 2);
+
+        // 触发一次删帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_DELETE)
+                .setEntityType(ENTITY_POST)
+                .setEntityId(postId)
+                .setUserId(hostHolder.getUser().getId());
+
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
 }

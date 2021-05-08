@@ -2,7 +2,6 @@ package com.ouweihao.community.dao;
 
 import com.ouweihao.community.entity.DiscussPost;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -26,5 +25,9 @@ public interface DiscussPostMapper {
     DiscussPost selectDiscussPostById(int id);
 
     int updateCommentCount(int id, int commentCount);
+
+    int updateType(int postId, int type);
+
+    int updateStatus(int postId, int status);
 
 }

@@ -1,10 +1,7 @@
 package com.ouweihao.community.service;
 
-import com.ouweihao.community.dao.DiscussPostMapper;
 import com.ouweihao.community.entity.DiscussPost;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -20,5 +17,9 @@ public interface DiscussPostService {
     DiscussPost findDiscussPostById(int id);
 
     int updateCommentCount(int id, int count);
+
+    int updateType(int postId, int type);
+
+    int updateStatus(int postId, int status);
 
 }

@@ -52,4 +52,16 @@
         where id = #{id}
     </update>
 
+    <update id="updateType">
+        update discuss_post
+        set type = #{type}
+        where id = #{postId}
+    </update>
+
+    <update id="updateStatus">
+        update discuss_post
+        set status = #{status}
+        where id = #{postId}
+    </update>
+
 </mapper>
