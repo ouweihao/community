@@ -22,7 +22,17 @@ public class RedisKeyUtil {
 
     private static final String TICKET_PREFIX = "ticket";
 
+    // 生成用户缓存
+
     private static final String USER_PREFIX = "user";
+
+    // 独立访客前缀，以IP为值存入
+
+    private static final String UV_PREFIX = "uv";
+
+    // 统计日活跃用户
+
+    private static final String DAU_PREFIX = "dau";
 
     // 形如like:entity:entityType:entityId
     // 帖子或评论的赞在redis中是一个集合，集合名称是like：entity:实体类型:实体id，里面存的是userId，
@@ -91,6 +101,48 @@ public class RedisKeyUtil {
      */
     public static String getUserKey(int userId) {
         return USER_PREFIX + SPLIT + userId;
+    }
+
+    /**
+     * 返回某个日期内独立用户访问ip集合的键名，类型为HyperLogLog
+     *
+     * @param date 日期格式化后的字符串，格式话Pattern为"yyyyMMdd"
+     * @return 键名
+     */
+    public static String getUVKey(String date) {
+        return UV_PREFIX + SPLIT + date;
+    }
+
+    /**
+     * 返回某日期区间内独立用户访问ip集合的键名，类型为HyperLogLog
+     *
+     * @param startDate 开始日期，日期格式化后的字符串，格式话Pattern为"yyyyMMdd"
+     * @param endDate   结束日期
+     * @return 键名
+     */
+    public static String getUVKey(String startDate, String endDate) {
+        return UV_PREFIX + SPLIT + startDate + SPLIT + endDate;
+    }
+
+    /**
+     * 某一天活跃用户的bitmap的键名，类型为bitmap，以userId为索引，假设用户在date这天登录，则userId这个索引上的值设为true
+     *
+     * @param date 某一天，日期格式化后的字符串，格式话Pattern为"yyyyMMdd"
+     * @return 键名
+     */
+    public static String getDAUKey(String date) {
+        return DAU_PREFIX + SPLIT + date;
+    }
+
+    /**
+     * 从startDate开始到endDate这天结束的区间内所有用户的bitmap的键名
+     *
+     * @param startDate 开始日期，日期格式化后的字符串，格式话Pattern为"yyyyMMdd"
+     * @param endDate   结束日期
+     * @return 键名
+     */
+    public static String getDAUKey(String startDate, String endDate) {
+        return DAU_PREFIX + SPLIT + startDate + SPLIT + endDate;
     }
 
 }

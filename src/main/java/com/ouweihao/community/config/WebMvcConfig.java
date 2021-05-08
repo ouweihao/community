@@ -1,6 +1,7 @@
 package com.ouweihao.community.config;
 
 import com.ouweihao.community.controller.interceptor.AlphaInterceptor;
+import com.ouweihao.community.controller.interceptor.DateCountInterceptor;
 import com.ouweihao.community.controller.interceptor.LoginTicketInterceptor;
 import com.ouweihao.community.controller.interceptor.MessageInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private MessageInterceptor messageInterceptor;
 
+    @Autowired
+    private DateCountInterceptor dateCountInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
@@ -37,6 +41,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 //                .excludePathPatterns("**/*.css", "**/*.js", "**/*.png", "**/*.jpg", "**/*.jpeg");
 
         registry.addInterceptor(messageInterceptor)
+                .excludePathPatterns("**/*.css", "**/*.js", "**/*.png", "**/*.jpg", "**/*.jpeg");
+
+        registry.addInterceptor(dateCountInterceptor)
                 .excludePathPatterns("**/*.css", "**/*.js", "**/*.png", "**/*.jpg", "**/*.jpeg");
 
     }
