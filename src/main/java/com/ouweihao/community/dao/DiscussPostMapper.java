@@ -12,7 +12,7 @@ public interface DiscussPostMapper {
     // 当UserId为0时则不拼接SQL，主要是考虑到后面用户个人中心会有我发布的帖子的功能
     // offset页数     limit每页最多显示多少数据
 
-    List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
+    List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit, int orderMode);
 
     // userId用处同上
     // @Param注解用于给参数取别名
@@ -29,5 +29,7 @@ public interface DiscussPostMapper {
     int updateType(int postId, int type);
 
     int updateStatus(int postId, int status);
+
+    int updateScore(int postId, double score);
 
 }

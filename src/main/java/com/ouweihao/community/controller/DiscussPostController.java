@@ -9,7 +9,9 @@ import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
 import com.ouweihao.community.util.CommunityUtil;
 import com.ouweihao.community.util.HostHolder;
+import com.ouweihao.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +39,9 @@ public class DiscussPostController implements CommunityConstant {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Autowired
     private EventProducer eventProducer;
@@ -68,6 +73,10 @@ public class DiscussPostController implements CommunityConstant {
                 .setAuthorId(currentUser.getId());
 
         eventProducer.fireEvent(event);
+
+        // 计算帖子分数
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, post.getId());
 
         // 后面将统一处理异常
         return CommunityUtil.getJsonString(0, "发布成功！");
@@ -226,6 +235,10 @@ public class DiscussPostController implements CommunityConstant {
                 .setUserId(hostHolder.getUser().getId());
 
         eventProducer.fireEvent(event);
+
+        // 计算帖子分数
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, postId);
 
         return CommunityUtil.getJsonString(0);
     }

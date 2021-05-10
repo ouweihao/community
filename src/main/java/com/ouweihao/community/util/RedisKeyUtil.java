@@ -34,6 +34,10 @@ public class RedisKeyUtil {
 
     private static final String DAU_PREFIX = "dau";
 
+    // 关于帖子的前缀
+
+    private static final String POST_PREFIX = "post";
+
     // 形如like:entity:entityType:entityId
     // 帖子或评论的赞在redis中是一个集合，集合名称是like：entity:实体类型:实体id，里面存的是userId，
     // 可以查看谁给你点过赞（通过userId）和赞的总数（返回set中userId的个数）
@@ -143,6 +147,15 @@ public class RedisKeyUtil {
      */
     public static String getDAUKey(String startDate, String endDate) {
         return DAU_PREFIX + SPLIT + startDate + SPLIT + endDate;
+    }
+
+    /**
+     * 得到需要更新帖子分数的帖子Id
+     *
+     * @return 存储需要更新分数帖子Id的集合
+     */
+    public static String getPostScoreKey() {
+        return POST_PREFIX + SPLIT + "score";
     }
 
 }

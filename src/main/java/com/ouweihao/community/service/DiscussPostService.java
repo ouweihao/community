@@ -8,7 +8,7 @@ import java.util.List;
 //@Service
 public interface DiscussPostService {
 
-    List<DiscussPost> findDiscussPosts(int userId, int offset, int limit);
+    List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode);
 
     int findDiscussPostRows(@Param("userId") int userId);
 
@@ -21,5 +21,7 @@ public interface DiscussPostService {
     int updateType(int postId, int type);
 
     int updateStatus(int postId, int status);
+
+    int updateScore(int postId, double score);
 
 }

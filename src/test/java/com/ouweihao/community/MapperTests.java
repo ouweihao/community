@@ -7,7 +7,6 @@ import com.ouweihao.community.dao.UserMapper;
 import com.ouweihao.community.entity.DiscussPost;
 import com.ouweihao.community.entity.LoginTicket;
 import com.ouweihao.community.entity.Message;
-import org.apache.ibatis.annotations.Mapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class MapperTests {
 
     @Test
     public void testSelectPosts() {
-        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(149, 0, 10);
+        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(149, 0, 10, 0);
         for (DiscussPost discussPost : discussPosts) {
             System.out.println(discussPost);
         }

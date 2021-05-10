@@ -9,7 +9,9 @@ import com.ouweihao.community.service.CommentService;
 import com.ouweihao.community.service.DiscussPostService;
 import com.ouweihao.community.util.CommunityConstant;
 import com.ouweihao.community.util.HostHolder;
+import com.ouweihao.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +31,9 @@ public class CommentController implements CommunityConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Autowired
     private EventProducer eventProducer;
@@ -72,6 +77,10 @@ public class CommentController implements CommunityConstant {
                     .setEntityId(postId);
 
             eventProducer.fireEvent(event);
+
+            // 计算帖子分数
+            String postScoreKey = RedisKeyUtil.getPostScoreKey();
+            redisTemplate.opsForSet().add(postScoreKey, postId);
         }
 
         return "redirect:/discuss/detail/" + postId;
