@@ -47,4 +47,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("**/*.css", "**/*.js", "**/*.png", "**/*.jpg", "**/*.jpeg");
 
     }
+
+    /**
+     * 添加静态资源，外部可以直接访问地址
+     * @param registry
+     */
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/public/**").addResourceLocations("classpath:/static/images/");
+//    }
 }

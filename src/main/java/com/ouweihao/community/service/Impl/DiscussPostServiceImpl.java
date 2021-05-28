@@ -37,6 +37,8 @@ public class DiscussPostServiceImpl implements DiscussPostService {
             throw new IllegalArgumentException("帖子不能为空！！");
         }
 
+//        System.out.println(content);
+
         // 标签预处理
         discussPost.setTitle(HtmlUtils.htmlEscape(discussPost.getTitle()));
         discussPost.setContent(HtmlUtils.htmlEscape(discussPost.getContent()));
@@ -44,6 +46,9 @@ public class DiscussPostServiceImpl implements DiscussPostService {
         // 过滤敏感字符
         discussPost.setTitle(sensitiveFilter.filter(discussPost.getTitle()));
         discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
+
+        // 只把内容改成html的格式
+        discussPost.setContent(HtmlUtils.htmlUnescape(discussPost.getContent()));
 
         return discussPostMapper.insertDiscussPost(discussPost);
     }
@@ -71,5 +76,10 @@ public class DiscussPostServiceImpl implements DiscussPostService {
     @Override
     public int updateScore(int postId, double score) {
         return discussPostMapper.updateScore(postId, score);
+    }
+
+    @Override
+    public int updateViews(int postId, int views) {
+        return discussPostMapper.updateViews(postId, views);
     }
 }

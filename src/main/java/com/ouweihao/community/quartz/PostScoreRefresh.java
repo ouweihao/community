@@ -56,6 +56,7 @@ public class PostScoreRefresh implements Job, CommunityConstant {
 
         if (operations.size() == 0) {
             LOGGER.info("[任务取消] 没有需要刷新分数的帖子");
+            return;
         }
 
         LOGGER.info("[任务开始] 正在刷新帖子分数： " + operations.size());

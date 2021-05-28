@@ -5,6 +5,7 @@ import com.ouweihao.community.entity.Page;
 import com.ouweihao.community.entity.User;
 import com.ouweihao.community.service.DiscussPostService;
 import com.ouweihao.community.service.LikeService;
+import com.ouweihao.community.service.SectionService;
 import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class HomeController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private SectionService sectionService;
+
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page,
                                @RequestParam(name = "orderMode", defaultValue = "0") int orderMode) {
@@ -56,6 +60,9 @@ public class HomeController implements CommunityConstant {
         }
         model.addAttribute("discussPosts", discussPosts);
         model.addAttribute("orderMode", orderMode);
+
+        model.addAttribute("sections", sectionService.getAllSections());
+
         return "/index";
     }
 

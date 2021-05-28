@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间绑定一个对应的Dao/Mapper（全路径）-->
+<mapper namespace="com.ouweihao.community.dao.SectionMapper">
+
+    <insert id="insertSection" parameterType="Section" keyProperty="id">
+        insert into section value (#{name});
+    </insert>
+
+    <select id="selectSectionById">
+        select id, name
+        from section
+        where id = #{id}
+    </select>
+
+    <select id="selectSectionByName">
+        select id, name
+        from section
+        where name = #{name}
+    </select>
+
+    <select id="getAllSections" resultType="Section">
+        select *
+        from section
+    </select>
+
+    <!--两个id可能会相冲，取别名即可-->
+    <!--    <resultMap id="section" type="com.ouweihao.community.entity.Section">-->
+    <!--        <id property="id" column="sid"/>-->
+    <!--        <result property="name" column="name"/>-->
+    <!--        <collection property="sectionId" ofType="com.ouweihao.community.entity.DiscussPost">-->
+    <!--            <id property="id" column="id"/>-->
+    <!--            <result property="title" column="title"/>-->
+    <!--            <result property="sectionId" column="section_id"/>-->
+    <!--        </collection>-->
+    <!--    </resultMap>-->
+
+    <!--    <select id="getDiscusspostSection" resultMap="section">-->
+    <!--        select s.id sid, s.name, post.id, post.title, post.section_id-->
+    <!--        from section s,-->
+    <!--             discuss_post post-->
+    <!--        where s.id = post.section_id;-->
+    <!--    </select>-->
+
+    <update id="updateSection" parameterType="Section">
+        update section
+        set name=#{name}
+        where id = #{id};
+    </update>
+
+    <delete id="deleteSectionById">
+        delete
+        from section
+        where id = #{id}
+    </delete>
+
+</mapper>

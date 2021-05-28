@@ -24,4 +24,6 @@ public interface DiscussPostService {
 
     int updateScore(int postId, double score);
 
+    int updateViews(int postId, int views);
+
 }

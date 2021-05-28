@@ -4,10 +4,7 @@ import com.ouweihao.community.dao.UserMapper;
 import com.ouweihao.community.entity.LoginTicket;
 import com.ouweihao.community.entity.User;
 import com.ouweihao.community.service.UserService;
-import com.ouweihao.community.util.CommunityConstant;
-import com.ouweihao.community.util.CommunityUtil;
-import com.ouweihao.community.util.MailClient;
-import com.ouweihao.community.util.RedisKeyUtil;
+import com.ouweihao.community.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +31,9 @@ public class UserServiceImpl implements UserService, CommunityConstant {
 
 //    @Autowired
 //    private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private SensitiveFilter sensitiveFilter;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -118,6 +118,9 @@ public class UserServiceImpl implements UserService, CommunityConstant {
             return map;
         }
 
+        // 过滤
+        user.setUsername(sensitiveFilter.filter(user.getUsername()));
+
         // 注册用户，补全用户中缺失的信息
         user.setSalt(CommunityUtil.generateUUID().substring(0, 5));
         user.setPassword(CommunityUtil.MD5(user.getPassword() + user.getSalt()));
@@ -178,6 +181,11 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         // 检测用户账号的状态
         if (user.getStatus() == 0) {
             map.put("usernameMsg", "该账号未激活！");
+            return map;
+        }
+        if (user.getStatus() == 2) {
+            map.put("usernameMsg", "该账号已被禁用！");
+            return map;
         }
 
         password = CommunityUtil.MD5(password + user.getSalt());

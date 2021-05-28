@@ -63,8 +63,8 @@ public class LoginController implements CommunityConstant {
     public String register(Model model, User user) {
         Map<String, Object> map = userService.register(user);
         if (map == null || map.isEmpty()) {
-            model.addAttribute("msg", "注册成功,我们已经向您的邮箱发送了一封激活邮件,请尽快激活!");
-            model.addAttribute("target", "/index");
+            model.addAttribute("msg", "注册成功,我们已经向您的邮箱发送了一封激活邮件,请尽快激活！且本系统只限激活用户登入！！！");
+            model.addAttribute("target", "/login");
             return "/site/operate-result";
         } else {
             model.addAttribute("usernameMsg", map.get("usernameMsg"));
@@ -114,7 +114,7 @@ public class LoginController implements CommunityConstant {
         cookie.setPath(contextPath);
         response.addCookie(cookie);
 
-        //  通过cookie将随机生成的owner字符串传给客户端
+        // 通过cookie将随机生成的owner字符串传给客户端
 
         // 声明返回什么格式的数据
         response.setContentType("image/png");

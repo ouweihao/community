@@ -1,29 +1,36 @@
 package com.ouweihao.community.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ouweihao.community.entity.*;
 import com.ouweihao.community.event.EventProducer;
-import com.ouweihao.community.service.CommentService;
-import com.ouweihao.community.service.DiscussPostService;
-import com.ouweihao.community.service.LikeService;
-import com.ouweihao.community.service.UserService;
+import com.ouweihao.community.service.*;
 import com.ouweihao.community.util.CommunityConstant;
 import com.ouweihao.community.util.CommunityUtil;
 import com.ouweihao.community.util.HostHolder;
 import com.ouweihao.community.util.RedisKeyUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 @Controller
 @RequestMapping("/discuss")
 public class DiscussPostController implements CommunityConstant {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscussPostController.class);
 
     @Autowired
     private DiscussPostService discussPostService;
@@ -46,11 +53,36 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
-//    @LoginRequired
+    @Autowired
+    private SectionService sectionService;
+
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+
+    @Value("${community.path.domain}")
+    private String domain;
+
+    @Value("${community.path.Imgupload}")
+    private String uploadPath;
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
+    @RequestMapping(path = "/add", method = RequestMethod.GET)
+    public String getAddPostPage(Model model) {
+
+        // 得到所有的版块
+        List<Section> allSections = sectionService.getAllSections();
+        model.addAttribute("sections", allSections);
+
+        return "/site/discusspost_input";
+    }
 
     @RequestMapping(path = "/add", method = RequestMethod.POST)
-    @ResponseBody
-    public String addDiscussPost(String title, String content) {
+    public String addDiscussPost(String title, @RequestParam(name = "my-editormd-markdown-doc") String mdContent,
+                                 @RequestParam(name = "my-editormd-html-code") String[] htmlContent,
+                                 int sectionId, RedirectAttributes attributes) {
+
         User currentUser = hostHolder.getUser();
 
         // 若未登陆则无法发布帖子
@@ -58,12 +90,18 @@ public class DiscussPostController implements CommunityConstant {
             return CommunityUtil.getJsonString(403, "您还未登陆哦！！");
         }
 
+        System.out.println(htmlContent[1]);
+        System.out.println(mdContent);
+
         DiscussPost post = new DiscussPost();
 
         post.setUserId(currentUser.getId());
         post.setTitle(title);
-        post.setContent(content);
+        post.setContent(htmlContent[1]);
         post.setCreateTime(new Date());
+        post.setUpdateTime(new Date());
+        post.setSectionId(sectionId);
+        post.setViews(0);
         discussPostService.addDiscussPost(post);
 
         Event event = new Event()
@@ -78,8 +116,83 @@ public class DiscussPostController implements CommunityConstant {
         String postScoreKey = RedisKeyUtil.getPostScoreKey();
         redisTemplate.opsForSet().add(postScoreKey, post.getId());
 
+        attributes.addFlashAttribute("publishstatus", 1);
+        attributes.addFlashAttribute("publishmsg", "发布帖子成功！");
+
         // 后面将统一处理异常
-        return CommunityUtil.getJsonString(0, "发布成功！");
+        return "redirect:/index";
+
+//        return CommunityUtil.getJsonString(0, "发布成功！");
+    }
+
+    @RequestMapping(path = "/upload", method = RequestMethod.POST)
+    @ResponseBody
+    public JSONObject editormdPic(@RequestParam(value = "editormd-image-file", required = true) MultipartFile file) throws Exception {
+
+        // 得到初始文件名
+        String fileName = file.getOriginalFilename();
+
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+
+        fileName = CommunityUtil.generateUUID() + suffix;
+
+        // 生成随机文件名
+        fileName = CommunityUtil.generateUUID() + suffix;
+        // 确定文件存在的路径
+        File dest = new File(uploadPath + "/" + fileName);
+
+//        File targetFile = new File(uploadPath, fileName);
+//        if(!targetFile.exists()){
+//            targetFile.mkdirs();
+//        }
+
+        System.out.println(uploadPath);
+
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            LOGGER.error("上传文件失败：" + e.getMessage());
+            throw new RuntimeException("上传文件失败！服务器发生异常！", e);
+        }
+
+        System.out.println(domain);
+
+        // 访问路径  http://localhost:8080/community/discuss/EditorImage/xxx.png
+        // 访问路径  http://localhost:8080/community/img/upload/xxx.png
+        JSONObject res = new JSONObject();
+        res.put("url", domain + contextPath + "/discuss/EditorImage/" + fileName);
+        System.out.println(domain + contextPath + "/discuss/uploadEditorImage/" + fileName);
+//        System.out.println(res.get("url"));
+        res.put("success", 1);
+        res.put("message", "upload success!");
+
+        return res;
+
+    }
+
+    @RequestMapping(path = "/EditorImage/{fileName}", method = RequestMethod.GET)
+    public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
+        // 服务器存放文件的路径
+        fileName = uploadPath + "/" + fileName;
+
+        // 获取文件后缀
+        String suffix = fileName.substring(fileName.lastIndexOf('.'));
+
+        // 响应图片
+        response.setContentType("image/" + suffix);
+
+        try (
+                FileInputStream fis = new FileInputStream(fileName);
+                OutputStream os = response.getOutputStream();
+        ) {
+            byte[] buffer = new byte[1024];
+            int b = 0; // offset
+            while ((b = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, b);
+            }
+        } catch (Exception e) {
+            LOGGER.error("读取图片失败：" + e.getMessage());
+        }
     }
 
     // page接收整理分页条件
@@ -90,6 +203,15 @@ public class DiscussPostController implements CommunityConstant {
         // 查询帖子
         DiscussPost post = discussPostService.findDiscussPostById(postId);
         model.addAttribute("post", post);
+
+        System.out.println(post.getContent());
+
+        // 更新浏览次数
+        int formerViews = post.getViews();
+        discussPostService.updateViews(postId, formerViews + 1);
+
+        post.setViews(formerViews + 1);
+        elasticSearchService.saveDiscussPost(post);
 
         // 查询作者
         User author = userService.findUserById(post.getUserId());

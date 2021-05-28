@@ -6,11 +6,11 @@
 <mapper namespace="com.ouweihao.community.dao.DiscussPostMapper">
 
     <sql id="selectFields">
-        id, user_id, title, content, type, status, create_time, comment_count, score
+        id, user_id, title, content, type, status, create_time, update_time, comment_count, section_id, views, score
     </sql>
 
     <sql id="insertFields">
-        user_id, title, content, type, status, create_time, comment_count, score
+        user_id, title, content, type, status, create_time, update_time, comment_count, section_id, views, score
     </sql>
 
     <select id="selectDiscussPosts" resultType="DiscussPost">
@@ -41,7 +41,8 @@
 
     <insert id="insertDiscussPost" parameterType="DiscussPost" keyProperty="id">
         insert into discuss_post(<include refid="insertFields"/>)
-        values(#{userId}, #{title}, #{content}, #{type}, #{status}, #{createTime}, #{commentCount}, #{score})
+        values(#{userId}, #{title}, #{content}, #{type}, #{status}, #{createTime},
+        #{updateTime}, #{commentCount}, #{sectionId}, #{views}, #{score})
     </insert>
 
     <select id="selectDiscussPostById" resultType="DiscussPost">
@@ -72,6 +73,12 @@
     <update id="updateScore">
         update discuss_post
         set score = #{score}
+        where id = #{postId}
+    </update>
+
+    <update id="updateViews">
+        update discuss_post
+        set views = #{views}
         where id = #{postId}
     </update>
 

@@ -29,6 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
+        //防止iframe
+        http.headers().frameOptions().disable();
+
         // 授权
         http.authorizeRequests()
                 .antMatchers(

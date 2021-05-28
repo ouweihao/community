@@ -46,8 +46,19 @@ public class DiscussPost {
     //    @Field(type = FieldType.Date)
     private Date createTime;
 
+    //    @Field(type = FieldType.Date)
+    private Date updateTime;
+
     //    @Field(type = FieldType.Integer)
     private int commentCount;
+
+//    private Section section;
+
+    @Field(type = FieldType.Integer)
+    private int sectionId;
+
+    @Field(type = FieldType.Integer)
+    private int views;
 
     //    @Field(type = FieldType.Double)
     private double score;
@@ -108,12 +119,44 @@ public class DiscussPost {
         this.createTime = createTime;
     }
 
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
     public int getCommentCount() {
         return commentCount;
     }
 
     public void setCommentCount(int commentCount) {
         this.commentCount = commentCount;
+    }
+
+//    public Section getSection() {
+//        return section;
+//    }
+//
+//    public void setSection(Section section) {
+//        this.section = section;
+//    }
+
+    public int getSectionId() {
+        return sectionId;
+    }
+
+    public void setSectionId(int sectionId) {
+        this.sectionId = sectionId;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
     }
 
     public double getScore() {
