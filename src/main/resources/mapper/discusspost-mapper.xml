@@ -6,11 +6,11 @@
 <mapper namespace="com.ouweihao.community.dao.DiscussPostMapper">
 
     <sql id="selectFields">
-        id, user_id, title, content, type, status, create_time, update_time, comment_count, section_id, views, score
+        id, user_id, title, mdcontent, htmlcontent, type, status, create_time, update_time, commentable, comment_count, section_id, views, score
     </sql>
 
     <sql id="insertFields">
-        user_id, title, content, type, status, create_time, update_time, comment_count, section_id, views, score
+        user_id, title, mdcontent, htmlcontent, type, status, create_time, update_time, commentable, comment_count, section_id, views, score
     </sql>
 
     <select id="selectDiscussPosts" resultType="DiscussPost">
@@ -20,6 +20,23 @@
         where status != 2
         <if test="userId != 0">
             and user_id = #{userId}
+        </if>
+        <if test="orderMode==0">
+            order by type desc, create_time desc
+        </if>
+        <if test="orderMode==1">
+            order by type desc, score desc, create_time desc
+        </if>
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="selectDiscussPostBySectionId" resultType="DiscussPost">
+        select
+        <include refid="selectFields"/>
+        from discuss_post
+        where status != 2
+        <if test="sectiondId != 0">
+            and section_id = #{sectionId}
         </if>
         <if test="orderMode==0">
             order by type desc, create_time desc
@@ -41,8 +58,8 @@
 
     <insert id="insertDiscussPost" parameterType="DiscussPost" keyProperty="id">
         insert into discuss_post(<include refid="insertFields"/>)
-        values(#{userId}, #{title}, #{content}, #{type}, #{status}, #{createTime},
-        #{updateTime}, #{commentCount}, #{sectionId}, #{views}, #{score})
+        values(#{userId}, #{title}, #{mdcontent}, #{htmlcontent}, #{type}, #{status}, #{createTime},
+        #{updateTime},#{commentable}, #{commentCount}, #{sectionId}, #{views}, #{score})
     </insert>
 
     <select id="selectDiscussPostById" resultType="DiscussPost">

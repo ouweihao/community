@@ -65,7 +65,7 @@ public class AlphaService {
         DiscussPost post = new DiscussPost();
         post.setUserId(user.getId());  // insert之后，自动生成的id就会被自动加上
         post.setTitle("test");
-        post.setContent("hello");
+        post.setMdcontent("hello");
         post.setCreateTime(new Date());
         discussPostMapper.insertDiscussPost(post);
 
@@ -96,7 +96,7 @@ public class AlphaService {
                 DiscussPost post = new DiscussPost();
                 post.setUserId(user.getId());  // insert之后，自动生成的id就会被自动加上
                 post.setTitle("test2");
-                post.setContent("hello2");
+                post.setHtmlcontent("hello2");
                 post.setCreateTime(new Date());
                 discussPostMapper.insertDiscussPost(post);
 

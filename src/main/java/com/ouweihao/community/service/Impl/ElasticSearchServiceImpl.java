@@ -49,14 +49,14 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public Page<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
         SearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
+                .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "mdcontent"))
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
                 .withPageable(PageRequest.of(current, limit))
                 .withHighlightFields(
                         new HighlightBuilder.Field("title").preTags("<em>").postTags("</em>"),
-                        new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
+                        new HighlightBuilder.Field("mdcontent").preTags("<em>").postTags("</em>")
                 ).build();
 
         return elasticsearchTemplate.queryForPage(searchQuery, DiscussPost.class, new SearchResultMapper() {
@@ -80,8 +80,14 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                     String title = hit.getSourceAsMap().get("title").toString();
                     post.setTitle(title);
 
-                    String content = hit.getSourceAsMap().get("content").toString();
-                    post.setContent(content);
+                    String mdcontent = hit.getSourceAsMap().get("mdcontent").toString();
+                    post.setMdcontent(mdcontent);
+
+                    String htmlcontent = hit.getSourceAsMap().get("htmlcontent").toString();
+                    post.setHtmlcontent(htmlcontent);
+
+                    String type = hit.getSourceAsMap().get("type").toString();
+                    post.setType(Integer.valueOf(type));
 
                     String status = hit.getSourceAsMap().get("status").toString();
                     post.setStatus(Integer.valueOf(status));
@@ -89,8 +95,17 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                     String createTime = hit.getSourceAsMap().get("createTime").toString();
                     post.setCreateTime(new Date(Long.valueOf(createTime)));
 
+                    String updateTime = hit.getSourceAsMap().get("updateTime").toString();
+                    post.setUpdateTime(new Date(Long.valueOf(updateTime)));
+
                     String commentCount = hit.getSourceAsMap().get("commentCount").toString();
                     post.setCommentCount(Integer.valueOf(commentCount));
+
+                    String sectionId = hit.getSourceAsMap().get("sectionId").toString();
+                    post.setSectionId(Integer.valueOf(sectionId));
+
+                    String views = hit.getSourceAsMap().get("views").toString();
+                    post.setViews(Integer.valueOf(views));
 
                     // 处理高亮显示的结果
                     HighlightField titleField = hit.getHighlightFields().get("title");
@@ -98,9 +113,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                         post.setTitle(titleField.getFragments()[0].toString());
                     }
 
-                    HighlightField contentField = hit.getHighlightFields().get("content");
+                    HighlightField contentField = hit.getHighlightFields().get("mdcontent");
                     if (contentField != null) {
-                        post.setContent(contentField.getFragments()[0].toString());
+                        post.setMdcontent(contentField.getFragments()[0].toString());
                     }
 
                     list.add(post);

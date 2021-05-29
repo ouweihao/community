@@ -34,8 +34,11 @@ public class DiscussPost {
     @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     private String title;
 
+    @Field(type = FieldType.Text)
+    private String mdcontent;
+
     @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
-    private String content;
+    private String htmlcontent;
 
     //    @Field(type = FieldType.Integer)
     private int type;
@@ -49,10 +52,11 @@ public class DiscussPost {
     //    @Field(type = FieldType.Date)
     private Date updateTime;
 
+    @Field(type = FieldType.Integer)
+    private int commentable;
+
     //    @Field(type = FieldType.Integer)
     private int commentCount;
-
-//    private Section section;
 
     @Field(type = FieldType.Integer)
     private int sectionId;
@@ -87,12 +91,20 @@ public class DiscussPost {
         this.title = title;
     }
 
-    public String getContent() {
-        return content;
+    public String getMdcontent() {
+        return mdcontent;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setMdcontent(String mdcontent) {
+        this.mdcontent = mdcontent;
+    }
+
+    public String getHtmlcontent() {
+        return htmlcontent;
+    }
+
+    public void setHtmlcontent(String htmlcontent) {
+        this.htmlcontent = htmlcontent;
     }
 
     public int getType() {
@@ -127,6 +139,14 @@ public class DiscussPost {
         this.updateTime = updateTime;
     }
 
+    public int getCommentable() {
+        return commentable;
+    }
+
+    public void setCommentable(int commentable) {
+        this.commentable = commentable;
+    }
+
     public int getCommentCount() {
         return commentCount;
     }
@@ -134,14 +154,6 @@ public class DiscussPost {
     public void setCommentCount(int commentCount) {
         this.commentCount = commentCount;
     }
-
-//    public Section getSection() {
-//        return section;
-//    }
-//
-//    public void setSection(Section section) {
-//        this.section = section;
-//    }
 
     public int getSectionId() {
         return sectionId;
@@ -173,11 +185,16 @@ public class DiscussPost {
                 "id=" + id +
                 ", userId=" + userId +
                 ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
+                ", mdcontent='" + mdcontent + '\'' +
+                ", htmlcontent='" + htmlcontent + '\'' +
                 ", type=" + type +
                 ", status=" + status +
                 ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", commentable=" + commentable +
                 ", commentCount=" + commentCount +
+                ", sectionId=" + sectionId +
+                ", views=" + views +
                 ", score=" + score +
                 '}';
     }

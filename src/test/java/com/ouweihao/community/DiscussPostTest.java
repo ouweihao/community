@@ -24,7 +24,7 @@ public class DiscussPostTest {
         DiscussPost discussPost = new DiscussPost();
         discussPost.setUserId(163);
         discussPost.setTitle("test");
-        discussPost.setContent("test");
+        discussPost.setHtmlcontent("test");
         discussPost.setType(0);
         discussPost.setStatus(0);
         discussPost.setCreateTime(new Date());

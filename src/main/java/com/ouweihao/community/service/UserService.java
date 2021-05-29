@@ -27,6 +27,8 @@ public interface UserService {
 
     int updatePassword(int userId, String password);
 
+    Map<String, Object> forgetPassword(String email, String verifyCode, String newPassword);
+
     /**
      * 返回用户的权限情况
      *

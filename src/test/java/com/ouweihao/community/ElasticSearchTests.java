@@ -50,9 +50,7 @@ public class ElasticSearchTests {
 
     @Test
     public void testInsert() {
-        discussPostRepository.save(discussPostMapper.selectDiscussPostById(284));
-        discussPostRepository.save(discussPostMapper.selectDiscussPostById(287));
-        discussPostRepository.save(discussPostMapper.selectDiscussPostById(288));
+        discussPostRepository.save(discussPostMapper.selectDiscussPostById(71));
     }
 
     @Test
@@ -72,7 +70,7 @@ public class ElasticSearchTests {
     @Test
     public void testUpdate() {
         DiscussPost post = discussPostMapper.selectDiscussPostById(231);
-        post.setContent("测试修改，新人灌水");
+        post.setHtmlcontent("测试修改，新人灌水");
         discussPostRepository.save(post);
     }
 
@@ -116,14 +114,14 @@ public class ElasticSearchTests {
     @Test
     public void testByElasticsearchTemplate() {
         SearchQuery query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.multiMatchQuery("互联网寒冬", "title", "content"))
+                .withQuery(QueryBuilders.multiMatchQuery("test", "title", "htmlcontent"))
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
                 .withPageable(PageRequest.of(0, 10))
                 .withHighlightFields(
                         new HighlightBuilder.Field("title").preTags("<em>").postTags("</em>"),
-                        new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
+                        new HighlightBuilder.Field("htmlcontent").preTags("<em>").postTags("</em>")
                 ).build();
 
         Page<DiscussPost> posts = elasticsearchTemplate.queryForPage(query, DiscussPost.class, new SearchResultMapper() {
@@ -151,8 +149,11 @@ public class ElasticSearchTests {
                     String title = hit.getSourceAsMap().get("title").toString();
                     post.setTitle(title);
 
-                    String content = hit.getSourceAsMap().get("content").toString();
-                    post.setContent(content);
+                    String mdcontent = hit.getSourceAsMap().get("mdcontent").toString();
+                    post.setMdcontent(mdcontent);
+
+                    String htmlcontent = hit.getSourceAsMap().get("htmlcontent").toString();
+                    post.setHtmlcontent(htmlcontent);
 
                     String type = hit.getSourceAsMap().get("type").toString();
                     post.setType(Integer.parseInt(type));
@@ -175,9 +176,9 @@ public class ElasticSearchTests {
                         post.setTitle(titleField.getFragments()[0].toString());
                     }
 
-                    HighlightField contentField = hit.getHighlightFields().get("content");
+                    HighlightField contentField = hit.getHighlightFields().get("htmlcontent");
                     if (contentField != null) {
-                        post.setContent(contentField.getFragments()[0].toString());
+                        post.setHtmlcontent(contentField.getFragments()[0].toString());
                     }
 
                     postList.add(post);

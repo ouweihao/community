@@ -41,14 +41,14 @@ public class DiscussPostServiceImpl implements DiscussPostService {
 
         // 标签预处理
         discussPost.setTitle(HtmlUtils.htmlEscape(discussPost.getTitle()));
-        discussPost.setContent(HtmlUtils.htmlEscape(discussPost.getContent()));
+        discussPost.setHtmlcontent(HtmlUtils.htmlEscape(discussPost.getHtmlcontent()));
 
         // 过滤敏感字符
         discussPost.setTitle(sensitiveFilter.filter(discussPost.getTitle()));
-        discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
+        discussPost.setHtmlcontent(sensitiveFilter.filter(discussPost.getHtmlcontent()));
 
         // 只把内容改成html的格式
-        discussPost.setContent(HtmlUtils.htmlUnescape(discussPost.getContent()));
+        discussPost.setHtmlcontent(HtmlUtils.htmlUnescape(discussPost.getHtmlcontent()));
 
         return discussPostMapper.insertDiscussPost(discussPost);
     }

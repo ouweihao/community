@@ -6,6 +6,7 @@ import com.ouweihao.community.entity.User;
 import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
 import com.ouweihao.community.util.CommunityUtil;
+import com.ouweihao.community.util.MailClient;
 import com.ouweihao.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,10 +17,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.Cookie;
@@ -43,6 +44,12 @@ public class LoginController implements CommunityConstant {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
+    @Autowired
+    private MailClient mailClient;
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
@@ -169,6 +176,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+
     @LoginRequired
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
@@ -178,6 +186,56 @@ public class LoginController implements CommunityConstant {
         SecurityContextHolder.clearContext();
 
         return "redirect:/login";
+    }
+
+    // 发送包含验证码的邮件
+
+    @RequestMapping(path = "/verifyCode", method = RequestMethod.GET)
+    @ResponseBody
+    public String getVerifyCode(String email) {
+        Context context = new Context();
+        String varifyCode = CommunityUtil.generateUUID().substring(0, 4);
+
+        context.setVariable("email", email);
+        context.setVariable("varifyCode", varifyCode);
+
+        // 持久化到redis数据库，方便以后保存，保存时间为5分钟，
+        String forgetPasswordKey = RedisKeyUtil.getForgetPasswordKey(email);
+        redisTemplate.opsForValue().set(forgetPasswordKey, varifyCode, 5 * 60, TimeUnit.SECONDS);
+
+        String content = templateEngine.process("/mail/forget", context);
+        mailClient.sendMail(email, "忘记密码验证码", content);
+
+        return CommunityUtil.getJsonString(0, "成功发送验证码");
+    }
+
+    @RequestMapping(path = "/forget", method = RequestMethod.GET)
+    public String getForgetPage() {
+        return "/site/forget";
+    }
+
+    @RequestMapping(path = "/forget", method = RequestMethod.POST)
+//    @ResponseBody
+    public String forget(@RequestParam(name = "your-email") String email,
+                         @RequestParam(name = "verifycode") String verifyCode,
+                         @RequestParam(name = "your-password") String newPassword,
+                         Model model, RedirectAttributes attributes) {
+
+//        System.out.println("email = " + email);
+//        System.out.println("verifyCode = " + verifyCode);
+//        System.out.println("newPassword = " + newPassword);
+
+        Map<String, Object> errorMsg = userService.forgetPassword(email, verifyCode, newPassword);
+        if (errorMsg == null || errorMsg.isEmpty()) {
+            attributes.addFlashAttribute("forgetStatus", 1);
+            attributes.addFlashAttribute("forgetMsg", "找回密码成功！");
+            return "redirect:/login";
+        } else {
+            model.addAttribute("email", email);
+            model.addAttribute("emailMsg", errorMsg.get("emailMsg"));
+            model.addAttribute("codeMsg", errorMsg.get("codeMsg"));
+            return "/site/forget";
+        }
     }
 
 }

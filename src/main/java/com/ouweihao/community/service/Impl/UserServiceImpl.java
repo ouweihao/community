@@ -144,6 +144,51 @@ public class UserServiceImpl implements UserService, CommunityConstant {
     }
 
     @Override
+    public Map<String, Object> forgetPassword(String email, String verifyCode, String newPassword) {
+
+//        System.out.println("email = " + email);
+//        System.out.println("verifyCode = " + verifyCode);
+//        System.out.println("newPassword = " + newPassword);
+
+        Map<String, Object> errorMsg = new HashMap<>();
+
+        User user = userMapper.selectByEmail(email);
+        if (user == null) {
+            errorMsg.put("emailMsg", "不存在存在该邮箱的用户！");
+            return errorMsg;
+        }
+
+        if (user.getStatus() == 0) {
+            errorMsg.put("emailMsg", "该账号尚未激活！无法修改密码！");
+            return errorMsg;
+        }
+
+        if (user.getStatus() == 3) {
+            errorMsg.put("emailMsg", "该账号处于封禁中，无法修改该密码！！");
+            return errorMsg;
+        }
+
+        String forgetPasswordKey = RedisKeyUtil.getForgetPasswordKey(email);
+
+        if (!redisTemplate.hasKey(forgetPasswordKey)) {
+            errorMsg.put("emailMsg", "输入的验证码并非本账号的验证码！！！");
+            return errorMsg;
+        }
+
+        String redisVerifyCode = (String) redisTemplate.opsForValue().get(forgetPasswordKey);
+        if (!redisVerifyCode.equalsIgnoreCase(verifyCode)) {
+            errorMsg.put("codeMsg", "验证码错误！！");
+            return errorMsg;
+        }
+
+        this.updatePassword(user.getId(), newPassword);
+
+        clearCacheUser(user.getId());
+
+        return errorMsg;
+    }
+
+    @Override
     public int activation(int userId, String activationCode) {
         User user = userMapper.selectById(userId);
         if (user.getStatus() == 1) {

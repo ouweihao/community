@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,6 +82,7 @@ public class DiscussPostController implements CommunityConstant {
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     public String addDiscussPost(String title, @RequestParam(name = "my-editormd-markdown-doc") String mdContent,
                                  @RequestParam(name = "my-editormd-html-code") String[] htmlContent,
+                                 HttpServletRequest request,
                                  int sectionId, RedirectAttributes attributes) {
 
         User currentUser = hostHolder.getUser();
@@ -90,19 +92,25 @@ public class DiscussPostController implements CommunityConstant {
             return CommunityUtil.getJsonString(403, "您还未登陆哦！！");
         }
 
-        System.out.println(htmlContent[1]);
-        System.out.println(mdContent);
+//        System.out.println(htmlContent[1]);
+//        System.out.println(mdContent);
+
+        String commentable = request.getParameter("commentable");
+        System.out.println("commentable: " + commentable);
 
         DiscussPost post = new DiscussPost();
 
         post.setUserId(currentUser.getId());
         post.setTitle(title);
-        post.setContent(htmlContent[1]);
+        post.setMdcontent(mdContent);
+        post.setHtmlcontent(htmlContent[1]);
         post.setCreateTime(new Date());
         post.setUpdateTime(new Date());
+        post.setCommentable(Integer.valueOf(commentable));
         post.setSectionId(sectionId);
         post.setViews(0);
         discussPostService.addDiscussPost(post);
+        elasticSearchService.saveDiscussPost(post);
 
         Event event = new Event()
                 .setTopic(TOPIC_PUBLISH)
@@ -204,7 +212,9 @@ public class DiscussPostController implements CommunityConstant {
         DiscussPost post = discussPostService.findDiscussPostById(postId);
         model.addAttribute("post", post);
 
-        System.out.println(post.getContent());
+        model.addAttribute("currentUser", hostHolder.getUser());
+
+//        System.out.println(post.getHtmlcontent());
 
         // 更新浏览次数
         int formerViews = post.getViews();

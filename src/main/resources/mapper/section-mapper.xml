@@ -5,17 +5,20 @@
 <!--namespace命名空间绑定一个对应的Dao/Mapper（全路径）-->
 <mapper namespace="com.ouweihao.community.dao.SectionMapper">
 
+    <sql id="selectFields">id, name</sql>
+
     <insert id="insertSection" parameterType="Section" keyProperty="id">
         insert into section value (#{name});
     </insert>
 
-    <select id="selectSectionById">
-        select id, name
+    <select id="selectSectionById" resultType="Section">
+        select
+        <include refid="selectFields"></include>
         from section
         where id = #{id}
     </select>
 
-    <select id="selectSectionByName">
+    <select id="selectSectionByName" resultType="Section">
         select id, name
         from section
         where name = #{name}

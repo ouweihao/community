@@ -4,6 +4,7 @@ import com.ouweihao.community.entity.DiscussPost;
 import com.ouweihao.community.entity.Page;
 import com.ouweihao.community.service.ElasticSearchService;
 import com.ouweihao.community.service.LikeService;
+import com.ouweihao.community.service.SectionService;
 import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,18 @@ public class SearchController implements CommunityConstant {
 
     @Autowired
     private LikeService likeService;
+
     /**
      * 搜到帖子后还要显示作者的信息
      */
     @Autowired
     private UserService userService;
+
+    /**
+     * 用于查询帖子分区信息
+     */
+    @Autowired
+    private SectionService sectionService;
 
     // 路径  search?keyword=XXX
 
@@ -48,6 +56,10 @@ public class SearchController implements CommunityConstant {
 
                 // 存入帖子
                 map.put("post", post);
+
+                map.put("section", sectionService.findSectionById(post.getSectionId()));
+
+                System.out.println("views: " + post.getViews());
 
                 // 存入作者
                 map.put("author", userService.findUserById(post.getUserId()));
