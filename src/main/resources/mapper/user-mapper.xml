@@ -58,4 +58,10 @@
         where id = #{id};
     </update>
 
+    <update id="updateEmail">
+        update user
+        set email=#{email}
+        where id = #{id};
+    </update>
+
 </mapper>

@@ -130,7 +130,89 @@
 					</div>
 				</form>
 
+				<!-- 修改邮件 -->
+				<h6 class="text-left text-info border-bottom pb-2 mt-5">修改邮箱</h6>
+				<form class="mt-5" method="post" th:action="@{/user/updateemail}">
+					<div class="form-group row">
+						<label for="former-email" class="col-sm-2 col-form-label text-right">邮箱:</label>
+						<div class="col-sm-10">
+							<input type="text"
+								   th:class="|form-control ${formerEmailMsg!=null?'is-invalid':''}|"
+								   th:value="${currentUser.email}"
+								   id="former-email" name="former-email" placeholder="请输入您的邮箱!" required>
+							<div class="invalid-feedback" th:text="${formerEmailMsg}">
+								该邮箱已被注册!
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mt-4">
+						<label for="updateVerifyCode" class="col-sm-2 col-form-label text-right">验证码:</label>
+						<div class="col-sm-6">
+							<input type="text"
+								   th:class="|form-control ${updateVerifyCodeMsg!=null?'is-invalid':''}|"
+								   id="updateVerifyCode" name="updateVerifyCode" placeholder="请输入验证码!">
+							<div class="invalid-feedback" th:text="${updateVerifyCodeMsg}">
+								验证码不正确!
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<input type="button" class="btn btn-info form-control" value="获取验证码"
+								   id="updateVerifyCodeBtn"
+								   onclick="updateVerifyCodeFun()">
+						</div>
+					</div>
+					<div class="form-group row mt-4">
+						<label for="new-email" class="col-sm-2 col-form-label text-right">新邮箱:</label>
+						<div class="col-sm-10">
+							<input type="text"
+								   th:class="|form-control ${newEmailMsg!=null?'is-invalid':''}|"
+								   id="new-email" name="new-email"
+								   placeholder="请输入新的邮箱!" required>
+							<div class="invalid-feedback" id="new-email-feedback" th:text="${newEmailMsg}">
+								密码长度不能小于8位!
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mt-4">
+						<label for="activationVerifycode" class="col-sm-2 col-form-label text-right">验证码:</label>
+						<div class="col-sm-6">
+							<input type="text"
+								   th:class="|form-control ${activationVerifyCodeMsg!=null?'is-invalid':''}|"
+								   id="activationVerifyCode" name="activationVerifyCode" placeholder="请输入验证码!">
+							<div class="invalid-feedback" th:text="${activationVerifyCodeMsg}">
+								验证码不正确!
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<input type="button" class="btn btn-info form-control" value="获取验证码"
+								   id="activationVerifyCodeBtn"
+								   onclick="activateVerifyCode()">
+						</div>
+					</div>
+					<div class="form-group row mt-4">
+						<div class="col-sm-2"></div>
+						<div class="col-sm-10 text-center">
+							<button type="submit" class="btn btn-info text-white form-control">修改邮箱</button>
+						</div>
+					</div>
+				</form>
 			</div>
+
+			<!-- 提示框 -->
+			<div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel"
+				 aria-hidden="true">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="hintModalLabel">提示</h5>
+						</div>
+						<div class="modal-body" id="hintBody">
+							发布完毕!
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 		<!-- 尾部 -->
@@ -147,6 +229,88 @@
 	$(function () {
 		bsCustomFileInput.init();
 	});
+
+	function updateVerifyCodeFun() {
+
+		var email = $("#former-email").val();
+
+		$.get(
+				CONTEXT_PATH + "/user/updateVerifyCode",
+				{"email": email},
+				function (data) {
+					data = $.parseJSON(data);
+					// 在提示框中显示返回消息
+					$("#hintBody").text(data.msg);
+					// 显示提示框
+					$("#hintModal").modal("show");
+					// 2秒后,自动隐藏提示框
+					setTimeout(function () {
+						$("#hintModal").modal("hide");
+					}, 2000);
+					// 获取验证码变得不能使用
+					$('#updateVerifyCodeBtn').attr("disabled", "disabled");
+					$('#updateVerifyCodeBtn').val("60");
+					// 60秒后，能重新获得验证码
+					var myVar = setInterval(function () {
+						var seconds = $("#updateVerifyCodeBtn").val();
+						$("#updateVerifyCodeBtn").val(--seconds);
+						if (seconds == 0) {
+							$('#updateVerifyCodeBtn').val("获取验证码");
+							$('#updateVerifyCodeBtn').removeAttr("disabled");
+							clearInterval(myVar);
+						}
+					}, 1000);
+				}
+		)
+	}
+
+	function activateVerifyCode() {
+
+		$("#new-email").removeClass("is-invalid");
+		$("#new-email-feedback").text("");
+
+		var email = $("#new-email").val();
+
+		var pattern = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/;
+
+		var isEmail = pattern.test(email);
+
+		if (isEmail == true) {
+			$.get(
+					CONTEXT_PATH + "/user/activateVerifyCode",
+					{"email": email},
+					function (data) {
+						data = $.parseJSON(data);
+						// 在提示框中显示返回消息
+						$("#hintBody").text(data.msg);
+						// 显示提示框
+						$("#hintModal").modal("show");
+						// 2秒后,自动隐藏提示框
+						setTimeout(function () {
+							$("#hintModal").modal("hide");
+						}, 2000);
+						// 获取验证码变得不能使用
+						$('#activationVerifyCodeBtn').attr("disabled", "disabled");
+						$('#activationVerifyCodeBtn').val("60");
+						// 60秒后，能重新获得验证码
+						var myVar = setInterval(function () {
+							var seconds = $("#activationVerifyCodeBtn").val();
+							$("#activationVerifyCodeBtn").val(--seconds);
+							if (seconds == 0) {
+								$('#activationVerifyCodeBtn').val("获取验证码");
+								$('#activationVerifyCodeBtn').removeAttr("disabled");
+								clearInterval(myVar);
+							}
+						}, 1000);
+					}
+			)
+		} else {
+			$("#new-email").addClass("is-invalid");
+			$("#new-email-feedback").text("邮箱格式不符合要求！！");
+		}
+
+
+	}
 </script>
 </body>
 </html>

@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 public class UserServiceImpl implements UserService, CommunityConstant {
 
     @Autowired
+    private HostHolder hostHolder;
+
+    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -171,7 +174,7 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         String forgetPasswordKey = RedisKeyUtil.getForgetPasswordKey(email);
 
         if (!redisTemplate.hasKey(forgetPasswordKey)) {
-            errorMsg.put("emailMsg", "输入的验证码并非本账号的验证码！！！");
+            errorMsg.put("emailMsg", "验证码超时或输入的验证码并非本账号的验证码！！！");
             return errorMsg;
         }
 
@@ -294,6 +297,74 @@ public class UserServiceImpl implements UserService, CommunityConstant {
 
         return rows;
     }
+
+    @Override
+    public Map<String, Object> updateEmail(String formerEmail, String updateVerifyCode,
+                                           String newEmail, String activationVerifyCode) {
+
+        User currentUser = hostHolder.getUser();
+
+        Map<String, Object> updateEmailMsg = new HashMap<>();
+
+        String updateEmailKey = RedisKeyUtil.getUpdateEmailKey(formerEmail);
+        String activateEmailKey = RedisKeyUtil.getActivateEmailKey(newEmail);
+
+        if (!redisTemplate.hasKey(updateEmailKey)) {
+            updateEmailMsg.put("updateVerifyCodeMsg", "验证码超时或非本账号验证码！！");
+            return updateEmailMsg;
+        }
+
+        if (!redisTemplate.hasKey(activateEmailKey)) {
+            updateEmailMsg.put("activationVerifyCodeMsg", "验证码超时或非本账号验证码！！");
+            return updateEmailMsg;
+        }
+
+        String updateCode = (String) redisTemplate.opsForValue().get(updateEmailKey);
+        String activateCode = (String) redisTemplate.opsForValue().get(activateEmailKey);
+
+        if (!formerEmail.equals(currentUser.getEmail())) {
+            updateEmailMsg.put("formerEmailMsg", "只能修改自己的邮箱哦！！亲~");
+            return updateEmailMsg;
+        }
+
+        if (!updateCode.equalsIgnoreCase(updateVerifyCode)) {
+            updateEmailMsg.put("updateVerifyCodeMsg", "验证码错误！！");
+            return updateEmailMsg;
+        }
+
+        User newEmailUser = userMapper.selectByEmail(newEmail);
+
+        if (newEmailUser != null) {
+            updateEmailMsg.put("newEmailMsg", "该邮箱已被注册！！");
+            return updateEmailMsg;
+        }
+
+        if (!activateCode.equalsIgnoreCase(activationVerifyCode)) {
+            updateEmailMsg.put("activationVerifyCodeMsg", "验证码错误！");
+            return updateEmailMsg;
+        }
+
+        // 进行修改邮箱的操作
+        userMapper.updateEmail(currentUser.getId(), newEmail);
+
+        // 数据发生变化，清除缓存中的数据
+        clearCacheUser(currentUser.getId());
+
+        return updateEmailMsg;
+    }
+
+    // 验证邮箱格式
+
+    /*private boolean isEmail(String email) {
+
+        String emailReg = "^[A-Za-z\\d]+([-_.][A-Za-z\\d]+)*@([A-Za-z\\d]+[-.])+[A-Za-z\\d]{2,4}$";
+
+        Pattern emailPattern = Pattern.compile(emailReg);
+        Matcher m = emailPattern.matcher(email);
+        return m.matches();
+//        return false;
+
+    }*/
 
     /**
      * 查询用户的权限

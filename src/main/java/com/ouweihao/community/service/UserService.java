@@ -29,6 +29,9 @@ public interface UserService {
 
     Map<String, Object> forgetPassword(String email, String verifyCode, String newPassword);
 
+    Map<String, Object> updateEmail(String formerEmail, String updateVerifyCode,
+                                    String newEmail, String activationVerifyCode);
+
     /**
      * 返回用户的权限情况
      *

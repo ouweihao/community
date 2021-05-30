@@ -42,6 +42,14 @@ public class RedisKeyUtil {
 
     private static final String FORGETPASSWORD_PREFIX = "forget";
 
+    // 修改邮箱验证码
+
+    private static final String UPDATEEMAIL_PREFIX = "updateemail";
+
+    // 修改邮箱时的验证码键值
+
+    private static final String ACTIVATEEMAIL_PREFIX = "activateemail";
+
     // 形如like:entity:entityType:entityId
     // 帖子或评论的赞在redis中是一个集合，集合名称是like：entity:实体类型:实体id，里面存的是userId，
     // 可以查看谁给你点过赞（通过userId）和赞的总数（返回set中userId的个数）
@@ -171,6 +179,28 @@ public class RedisKeyUtil {
 
     public static String getForgetPasswordKey(String email) {
         return FORGETPASSWORD_PREFIX + SPLIT + email;
+    }
+
+    /**
+     * 用户存储修改邮箱时的验证码
+     *
+     * @param email 邮箱，标识
+     * @return 形如updateemaiil:email的key，其中存储修改邮箱时的验证码
+     */
+
+    public static String getUpdateEmailKey(String email) {
+        return UPDATEEMAIL_PREFIX + SPLIT + email;
+    }
+
+    /**
+     * 得到存储激活邮箱所需验证码的key
+     *
+     * @param email 邮箱，标识
+     * @return 形如activateemail:email的key
+     */
+
+    public static String getActivateEmailKey(String email) {
+        return ACTIVATEEMAIL_PREFIX + SPLIT + email;
     }
 
 }

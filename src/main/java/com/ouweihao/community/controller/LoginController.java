@@ -190,18 +190,18 @@ public class LoginController implements CommunityConstant {
 
     // 发送包含验证码的邮件
 
-    @RequestMapping(path = "/verifyCode", method = RequestMethod.GET)
+    @RequestMapping(path = "/forgetVerifyCode", method = RequestMethod.GET)
     @ResponseBody
     public String getVerifyCode(String email) {
         Context context = new Context();
-        String varifyCode = CommunityUtil.generateUUID().substring(0, 4);
+        String verifyCode = CommunityUtil.generateUUID().substring(0, 4);
 
         context.setVariable("email", email);
-        context.setVariable("varifyCode", varifyCode);
+        context.setVariable("verifyCode", verifyCode);
 
         // 持久化到redis数据库，方便以后保存，保存时间为5分钟，
         String forgetPasswordKey = RedisKeyUtil.getForgetPasswordKey(email);
-        redisTemplate.opsForValue().set(forgetPasswordKey, varifyCode, 5 * 60, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(forgetPasswordKey, verifyCode, 5 * 60, TimeUnit.SECONDS);
 
         String content = templateEngine.process("/mail/forget", context);
         mailClient.sendMail(email, "忘记密码验证码", content);
@@ -215,7 +215,6 @@ public class LoginController implements CommunityConstant {
     }
 
     @RequestMapping(path = "/forget", method = RequestMethod.POST)
-//    @ResponseBody
     public String forget(@RequestParam(name = "your-email") String email,
                          @RequestParam(name = "verifycode") String verifyCode,
                          @RequestParam(name = "your-password") String newPassword,

@@ -6,27 +6,28 @@ import com.ouweihao.community.entity.User;
 import com.ouweihao.community.service.FollowService;
 import com.ouweihao.community.service.LikeService;
 import com.ouweihao.community.service.UserService;
-import com.ouweihao.community.util.CommunityConstant;
-import com.ouweihao.community.util.CommunityUtil;
-import com.ouweihao.community.util.HostHolder;
+import com.ouweihao.community.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping(path = "/user")
@@ -49,6 +50,15 @@ public class UserController implements CommunityConstant {
     @Autowired
     private FollowService followService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
+    @Autowired
+    private MailClient mailClient;
+
     @Value("${community.path.domain}")
     private String domain;
 
@@ -60,7 +70,8 @@ public class UserController implements CommunityConstant {
 
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
-    public String getSettingPage() {
+    public String getSettingPage(Model model) {
+        model.addAttribute("currentUser", hostHolder.getUser());
         return "/site/setting";
     }
 
@@ -206,6 +217,76 @@ public class UserController implements CommunityConstant {
 
 
         return "/site/profile";
+    }
+
+    // 发送包含验证码的邮件
+
+    @RequestMapping(path = "/updateVerifyCode", method = RequestMethod.GET)
+    @ResponseBody
+    public String getUpdateVerifyCode(String email) {
+        Context context = new Context();
+        String verifyCode = CommunityUtil.generateUUID().substring(0, 4);
+
+        context.setVariable("email", email);
+        context.setVariable("verifyCode", verifyCode);
+
+        // 持久化到redis数据库，方便以后保存，保存时间为5分钟，
+        String updateEmailKey = RedisKeyUtil.getUpdateEmailKey(email);
+        redisTemplate.opsForValue().set(updateEmailKey, verifyCode, 5 * 60, TimeUnit.SECONDS);
+
+        String content = templateEngine.process("/mail/updateEmailVerifyCode", context);
+        mailClient.sendMail(email, "修改改邮箱验证码", content);
+
+        return CommunityUtil.getJsonString(0, "成功发送验证码");
+    }
+
+    @RequestMapping(path = "/activateVerifyCode", method = RequestMethod.GET)
+    @ResponseBody
+    public String getActivateVerifyCode(String email) {
+        Context context = new Context();
+        String verifyCode = CommunityUtil.generateUUID().substring(0, 4);
+
+        context.setVariable("email", email);
+        context.setVariable("verifyCode", verifyCode);
+
+        // 持久化到redis数据库，方便以后保存，保存时间为5分钟，
+        String activateEmailKey = RedisKeyUtil.getActivateEmailKey(email);
+        redisTemplate.opsForValue().set(activateEmailKey, verifyCode, 5 * 60, TimeUnit.SECONDS);
+
+        String content = templateEngine.process("/mail/activateEmailVerifyCode", context);
+        mailClient.sendMail(email, "激活新邮箱验证码", content);
+
+        return CommunityUtil.getJsonString(0, "成功发送验证码");
+    }
+
+    @RequestMapping(path = "/updateemail", method = RequestMethod.POST)
+    public String updateEmail(@RequestParam(name = "former-email") String formerEmail,
+                              @RequestParam(name = "updateVerifyCode") String updateVerifyCode,
+                              @RequestParam(name = "new-email") String newEmail,
+                              @RequestParam(name = "activationVerifyCode") String activationVerifyCode,
+                              Model model, RedirectAttributes attributes,
+                              @CookieValue("ticket") String ticket) {
+
+       /* System.out.println("formerEmail = " + formerEmail);
+        System.out.println("updateVerifyCode = " + updateVerifyCode);
+        System.out.println("newEmail = " + newEmail);
+        System.out.println("activationVerifyCode = " + activationVerifyCode);*/
+
+        Map<String, Object> updateEmailMsg = userService.updateEmail(formerEmail,
+                updateVerifyCode, newEmail, activationVerifyCode);
+        if (updateEmailMsg == null || updateEmailMsg.isEmpty()) {
+            attributes.addFlashAttribute("forgetStatus", 1);
+            attributes.addFlashAttribute("forgetMsg", "修改邮箱成功！！");
+            userService.logout(ticket);
+            return "redirect:/login";
+        } else {
+            model.addAttribute("formerEmailMsg", updateEmailMsg.get("formerEmailMsg"));
+            model.addAttribute("updateVerifyCodeMsg", updateEmailMsg.get("updateVerifyCodeMsg"));
+            model.addAttribute("newEmailMsg", updateEmailMsg.get("newEmailMsg"));
+            model.addAttribute("activationVerifyCodeMsg", updateEmailMsg.get("activationVerifyCodeMsg"));
+            return "/site/setting";
+        }
+
     }
 
 }
