@@ -2,6 +2,7 @@ package com.ouweihao.community.controller;
 
 import com.ouweihao.community.entity.DiscussPost;
 import com.ouweihao.community.entity.Page;
+import com.ouweihao.community.entity.Section;
 import com.ouweihao.community.entity.User;
 import com.ouweihao.community.service.DiscussPostService;
 import com.ouweihao.community.service.LikeService;
@@ -41,14 +42,15 @@ public class HomeController implements CommunityConstant {
 
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page,
-                               @RequestParam(name = "orderMode", defaultValue = "0") int orderMode) {
+                               @RequestParam(name = "orderMode", defaultValue = "0") int orderMode,
+                               @RequestParam(name = "sectionId", defaultValue = "0") int sectionId) {
         // 方法调用前，SpringMVC会自动实例化Model和Page，并将Page注入Model。
         // 可以直接在页面中访问Page中的数据
         page.setRows(discussPostService.findDiscussPostRows(0));
-        page.setPath("/index?orderMode=" + orderMode);
+        page.setPath("/index?orderMode=" + orderMode + "&sectionId=" + sectionId);
 
         List<DiscussPost> list =
-                discussPostService.findDiscussPosts(0, page.getOffSet(), page.getLimit(), orderMode);
+                discussPostService.findDiscussPosts(0, page.getOffSet(), page.getLimit(), orderMode, sectionId);
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (list != null) {
             for (DiscussPost discussPost : list) {
@@ -65,8 +67,24 @@ public class HomeController implements CommunityConstant {
         model.addAttribute("loginUser", hostHolder.getUser());
         model.addAttribute("discussPosts", discussPosts);
         model.addAttribute("orderMode", orderMode);
+        model.addAttribute("sectionId", sectionId);
 
-        model.addAttribute("sections", sectionService.getAllSections());
+        List<Map<String, Object>> sections = new ArrayList<>();
+        List<Section> allSections = sectionService.getAllSections();
+
+        int allPostCount = 0;
+
+        for (Section s : allSections) {
+            Map<String, Object> section = new HashMap<>();
+            section.put("section", s);
+            int count = discussPostService.findSectionDiscussPostCount(s.getId());
+            allPostCount += count;
+            section.put("postCount", count);
+            sections.add(section);
+        }
+
+        model.addAttribute("sections", sections);
+        model.addAttribute("allPostCount", allPostCount);
 
         return "/index";
     }

@@ -88,11 +88,11 @@
                             <ul class="nav nav-tabs mb-3">
                                 <li class="nav-item">
                                     <a th:class="|nav-link ${orderMode==0?'active':''}|"
-                                       th:href="@{/index(orderMode=0)}">最新</a>
+                                       th:href="@{/index(orderMode=0,sectionId=${sectionId})}">最新</a>
                                 </li>
                                 <li class="nav-item">
                                     <a th:class="|nav-link ${orderMode==1?'active':''}|"
-                                       th:href="@{/index(orderMode=1)}">最热</a>
+                                       th:href="@{/index(orderMode=1,sectionId=${sectionId})}">最热</a>
                                 </li>
                             </ul>
                             <a class="btn btn-primary btn-sm position-absolute rt-0 ui button"
@@ -208,20 +208,17 @@
 
                         <div class="ui blue segment ">
                             <div class="ui fluid vertical menu">
-                                <a href="#" target="_blank" class="item">
+                                <a th:href="@{/index(sectionId=0)}" th:class="|item ${sectionId==0?'active':''}|">
                                     <span>全部分类</span>
+                                    <span class="float-right" th:text="${allPostCount}">1</span>
                                     <!--<div class="ui blue basic left pointing label" th:text="${#arrays.length(type.blogs)}">13</div>-->
                                 </a>
-                                <a href="#" target="_blank" class="item" th:each="section : ${sections}">
-                                    <span th:text="${section.name}">学习日志</span>
-                                    <!--<div class="ui blue basic left pointing label" th:text="${#arrays.length(type.blogs)}">13</div>-->
+                                <a th:href="@{/index(sectionId=${section.section.id},orderMode=${orderMode})}"
+                                   th:class="|item ${section.section.id==sectionId?'active':''}|"
+                                   th:each="section : ${sections}">
+                                    <span th:text="${section.section.name}">学习日志</span>
+                                    <span class="float-right" th:text="${section.postCount}">1</span>
                                 </a>
-                                <!--/*-->
-                                <!--                                <a href="#" class="item">-->
-                                <!--                                    思考与感悟-->
-                                <!--                                    <div class="ui blue basic left pointing label">13</div>-->
-                                <!--                                </a>-->
-                                <!--*/-->
                             </div>
                         </div>
 

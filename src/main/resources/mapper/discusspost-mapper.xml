@@ -21,6 +21,9 @@
         <if test="userId != 0">
             and user_id = #{userId}
         </if>
+        <if test="sectionId != 0">
+            and section_id = #{sectionId}
+        </if>
         <if test="orderMode==0">
             order by type desc, create_time desc
         </if>
@@ -35,7 +38,7 @@
         <include refid="selectFields"/>
         from discuss_post
         where status != 2
-        <if test="sectiondId != 0">
+        <if test="sectionId != 0">
             and section_id = #{sectionId}
         </if>
         <if test="orderMode==0">
@@ -45,6 +48,16 @@
             order by type desc, score desc, create_time desc
         </if>
         limit #{offset}, #{limit}
+    </select>
+
+    <select id="selectSectionDiscussPostCount" resultType="int">
+
+        select count(id)
+        from discuss_post
+        <if test="sectionId!=0">
+            where section_id = #{sectionId}
+        </if>
+
     </select>
 
     <select id="selectDiscussPostRows" resultType="int">

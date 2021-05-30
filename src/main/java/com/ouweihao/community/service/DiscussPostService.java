@@ -8,13 +8,17 @@ import java.util.List;
 //@Service
 public interface DiscussPostService {
 
-    List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode);
+    List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode, int sectionId);
 
     int findDiscussPostRows(@Param("userId") int userId);
 
     int addDiscussPost(DiscussPost discussPost);
 
     DiscussPost findDiscussPostById(int id);
+
+    // 查询某分区下帖子的数量，若sectionId为0则为全部数量
+
+    int findSectionDiscussPostCount(int sectionId);
 
     int updateCommentCount(int id, int count);
 
