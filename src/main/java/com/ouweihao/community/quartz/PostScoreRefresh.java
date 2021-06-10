@@ -42,7 +42,7 @@ public class PostScoreRefresh implements Job, CommunityConstant {
 
     static {
         try {
-            epoch = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-08-01 00:00:00");
+            epoch = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-01-01 00:00:00");
         } catch (ParseException e) {
             throw new RuntimeException("初始化社区时间失败！！");
         }
@@ -87,12 +87,16 @@ public class PostScoreRefresh implements Job, CommunityConstant {
         // 点赞数
         long likeCount = likeService.findEntityLikeCount(ENTITY_POST, postId);
 
+        // 浏览量
+        int views = post.getViews();
+
         // 计算权重
-        double weight = (wonderful ? 75 : 0) + commentCount * 10L + likeCount * 2;
+        double weight = (wonderful ? 75 : 0) + commentCount * 10L + likeCount * 2 + views;
 
         // 分数
         double score = Math.log10(Math.max(weight, 1))
-                + (post.getCreateTime().getTime() - epoch.getTime()) / (1000 * 3600 * 24 * 1.0);
+                + (post.getUpdateTime().getTime() - epoch.getTime() -
+                (post.getUpdateTime().getTime() - post.getCreateTime().getTime()) * 0.1) / (1000 * 3600 * 24 * 1.0);
 
         // 更新帖子分数
         discussPostService.updateScore(postId, score);

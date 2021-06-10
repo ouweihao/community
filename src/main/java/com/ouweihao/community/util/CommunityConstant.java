@@ -92,5 +92,9 @@ public interface CommunityConstant {
      */
     String AUTHORITY_MODERATOR = "moderator";
 
+    /**
+     * 权限：禁言用户
+     */
+    String AUTHORITY_FORBIDDEN = "forbidden";
 
 }

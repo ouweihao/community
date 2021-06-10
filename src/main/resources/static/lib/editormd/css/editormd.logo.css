@@ -18,7 +18,6 @@
     font-weight: normal;
     font-style: normal;
 }
-
 .editormd-logo,
 .editormd-logo-1x,
 .editormd-logo-2x,
@@ -42,7 +41,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
 .editormd-logo:before,
 .editormd-logo-1x:before,
 .editormd-logo-2x:before,

@@ -39,7 +39,7 @@
                         </li>
                         <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser!=null}">
                             <a class="nav-link position-relative" th:href="@{/letter/list}">消息<span
-                                    class="badge badge-danger"
+                                    class="badge badge-danger" sec:authorize="hasAnyAuthority('admin,moderator,user')"
                                     th:text="${allUnreadCount>0?allUnreadCount:''}">12</span></a>
                         </li>
                         <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
@@ -55,7 +55,7 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item text-center"
-                                   th:href="@{|/user/profile/${loginUser.id}}|">个人主页</a>
+                                   th:href="@{|/user/profile/${loginUser.id}|}">个人主页</a>
                                 <a class="dropdown-item text-center" th:href="@{/user/setting}">账号设置</a>
                                 <a class="dropdown-item text-center" th:href="@{/logout}">退出登录</a>
                                 <div class="dropdown-divider"></div>
@@ -129,10 +129,17 @@
                                               th:if="${map.post.type==1}">置顶</span>
                                         <span class="badge badge-secondary bg-danger"
                                               th:if="${map.post.status==1}">精华</span>
+                                        <a class="btn btn-info btn-sm float-right"
+                                           th:href="@{/add/{id}(id=${map.post.id})}"
+                                           th:if="${(loginUser!=null) && (loginUser.status!=3) && (loginUser.id == map.post.userId)}">编辑
+                                            <!--data-target="#publishModal"-->
+                                        </a>
                                     </h6>
                                     <div class="text-muted font-size-12">
                                         <u class="mr-3" th:utext="${map.user.username}">寒江雪</u> 发布于 <b
                                             th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15
+                                        15:32:18</b> &nbsp;&nbsp;&nbsp;&nbsp; 最后更新于 <b
+                                            th:text="${#dates.format(map.post.updateTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15
                                         15:32:18</b>
                                         <ul class="d-inline float-right">
                                             <li class="d-inline ml-2">浏览量 <span th:text="${map.post.views}">11</span>

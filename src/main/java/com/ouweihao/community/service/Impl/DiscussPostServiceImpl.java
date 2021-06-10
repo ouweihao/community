@@ -87,4 +87,19 @@ public class DiscussPostServiceImpl implements DiscussPostService {
     public int updateViews(int postId, int views) {
         return discussPostMapper.updateViews(postId, views);
     }
+
+    @Override
+    public int updateAttach(int postId, String attachName, String attachUrl) {
+        return discussPostMapper.updateAttach(postId, attachName, attachUrl);
+    }
+
+    @Override
+    public int deleteAttach(int postId) {
+        return discussPostMapper.deleteAttach(postId);
+    }
+
+    @Override
+    public int updatePost(DiscussPost post) {
+        return discussPostMapper.updatePost(post);
+    }
 }

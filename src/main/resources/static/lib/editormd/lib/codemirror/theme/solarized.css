@@ -85,7 +85,6 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
     background-color: #002b36;
     text-shadow: #002b36 0 1px;
 }
-
 .cm-s-solarized.cm-s-light {
     background-color: #fdf6e3;
     color: #657b83;
@@ -307,7 +306,6 @@ view-port
 .cm-s-solarized.cm-s-dark .CodeMirror-activeline-background {
     background: rgba(255, 255, 255, 0.10);
 }
-
 .cm-s-solarized.cm-s-light .CodeMirror-activeline-background {
     background: rgba(0, 0, 0, 0.10);
 }

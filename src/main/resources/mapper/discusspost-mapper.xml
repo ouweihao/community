@@ -6,11 +6,11 @@
 <mapper namespace="com.ouweihao.community.dao.DiscussPostMapper">
 
     <sql id="selectFields">
-        id, user_id, title, mdcontent, htmlcontent, type, status, create_time, update_time, commentable, comment_count, section_id, views, score
+        id, user_id, title, mdcontent, htmlcontent, type, status, create_time, update_time, commentable, comment_count, section_id, views, score, attach_name, attach_url
     </sql>
 
     <sql id="insertFields">
-        user_id, title, mdcontent, htmlcontent, type, status, create_time, update_time, commentable, comment_count, section_id, views, score
+        user_id, title, mdcontent, htmlcontent, type, status, create_time, update_time, commentable, comment_count, section_id, views, score, attach_name, attach_url
     </sql>
 
     <select id="selectDiscussPosts" resultType="DiscussPost">
@@ -72,7 +72,7 @@
     <insert id="insertDiscussPost" parameterType="DiscussPost" keyProperty="id">
         insert into discuss_post(<include refid="insertFields"/>)
         values(#{userId}, #{title}, #{mdcontent}, #{htmlcontent}, #{type}, #{status}, #{createTime},
-        #{updateTime},#{commentable}, #{commentCount}, #{sectionId}, #{views}, #{score})
+        #{updateTime},#{commentable}, #{commentCount}, #{sectionId}, #{views}, #{score}, #{attachName}, #{attachUrl})
     </insert>
 
     <select id="selectDiscussPostById" resultType="DiscussPost">
@@ -110,6 +110,34 @@
         update discuss_post
         set views = #{views}
         where id = #{postId}
+    </update>
+
+    <update id="updateAttach">
+        update discuss_post
+        set attach_name=#{attachName},
+            attach_url=#{attachUrl}
+        where id = #{postId}
+    </update>
+
+    <update id="deleteAttach">
+        update discuss_post
+        set attach_name = ''
+          , attach_url  = ''
+        where id = #{postId};
+    </update>
+
+    <update id="updatePost">
+        update discuss_post
+        set user_id     = #{userId},
+            title       = #{title},
+            mdcontent   = #{mdcontent},
+            htmlcontent = #{htmlcontent},
+            update_time = #{updateTime},
+            commentable = #{commentable},
+            section_id  = #{sectionId},
+            attach_name = #{attachName},
+            attach_url  = #{attachUrl}
+        where id = #{id}
     </update>
 
 </mapper>

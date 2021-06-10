@@ -67,6 +67,12 @@ public class DiscussPost {
     //    @Field(type = FieldType.Double)
     private double score;
 
+    @Field(type = FieldType.Text)
+    private String attachName;
+
+    @Field(type = FieldType.Text)
+    private String attachUrl;
+
     public int getId() {
         return id;
     }
@@ -179,6 +185,22 @@ public class DiscussPost {
         this.score = score;
     }
 
+    public String getAttachName() {
+        return attachName;
+    }
+
+    public void setAttachName(String attachName) {
+        this.attachName = attachName;
+    }
+
+    public String getAttachUrl() {
+        return attachUrl;
+    }
+
+    public void setAttachUrl(String attachUrl) {
+        this.attachUrl = attachUrl;
+    }
+
     @Override
     public String toString() {
         return "DiscussPost{" +
@@ -196,6 +218,8 @@ public class DiscussPost {
                 ", sectionId=" + sectionId +
                 ", views=" + views +
                 ", score=" + score +
+                ", attachName='" + attachName + '\'' +
+                ", attachUrl='" + attachUrl + '\'' +
                 '}';
     }
 }

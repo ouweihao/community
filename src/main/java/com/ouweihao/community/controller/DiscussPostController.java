@@ -69,8 +69,15 @@ public class DiscussPostController implements CommunityConstant {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    @Value("${community.path.attachUpload}")
+    private String uploadAttachDir;
+
     @RequestMapping(path = "/add", method = RequestMethod.GET)
     public String getAddPostPage(Model model) {
+
+        DiscussPost post = new DiscussPost();
+
+        model.addAttribute("post", post);
 
         // 得到所有的版块
         List<Section> allSections = sectionService.getAllSections();
@@ -79,11 +86,12 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discusspost_input";
     }
 
+
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     public String addDiscussPost(String title, @RequestParam(name = "my-editormd-markdown-doc") String mdContent,
                                  @RequestParam(name = "my-editormd-html-code") String[] htmlContent,
-                                 HttpServletRequest request,
-                                 int sectionId, RedirectAttributes attributes) {
+                                 @RequestParam(name = "attachFile") MultipartFile attachFile,
+                                 HttpServletRequest request, int sectionId, RedirectAttributes attributes) {
 
         User currentUser = hostHolder.getUser();
 
@@ -103,12 +111,22 @@ public class DiscussPostController implements CommunityConstant {
         post.setUserId(currentUser.getId());
         post.setTitle(title);
         post.setMdcontent(mdContent);
-        post.setHtmlcontent(htmlContent[1]);
+        post.setHtmlcontent(htmlContent[0]);
         post.setCreateTime(new Date());
         post.setUpdateTime(new Date());
         post.setCommentable(Integer.valueOf(commentable));
         post.setSectionId(sectionId);
         post.setViews(0);
+
+        if (attachFile.isEmpty()) {
+            post.setAttachName(null);
+            post.setAttachUrl(null);
+        } else {
+            Map<String, String> res = uploadAttach(attachFile);
+            post.setAttachName(res.get("filename"));
+            post.setAttachUrl(res.get("attachUrl"));
+        }
+
         discussPostService.addDiscussPost(post);
         elasticSearchService.saveDiscussPost(post);
 
@@ -131,6 +149,76 @@ public class DiscussPostController implements CommunityConstant {
         return "redirect:/index";
 
 //        return CommunityUtil.getJsonString(0, "发布成功！");
+    }
+
+    @RequestMapping(path = "/updatepost/{id}", method = RequestMethod.POST)
+    public String updatePost(@PathVariable(name = "id") int id, String title,
+                             @RequestParam(name = "my-editormd-markdown-doc") String mdContent,
+                             @RequestParam(name = "my-editormd-html-code") String[] htmlContent,
+                             @RequestParam(name = "attachFile") MultipartFile attachFile,
+                             HttpServletRequest request, int sectionId, RedirectAttributes attributes) {
+
+
+        System.out.println("attachFile = " + attachFile);
+        System.out.println("attachFile.isEmpty() = " + attachFile.isEmpty());
+
+        User currentUser = hostHolder.getUser();
+
+        // 若未登陆则无法发布帖子
+        if (currentUser == null) {
+            return CommunityUtil.getJsonString(403, "您还未登陆哦！！");
+        }
+
+        DiscussPost newPost = new DiscussPost();
+        DiscussPost post = discussPostService.findDiscussPostById(id);
+
+        // 删除旧的信息
+        elasticSearchService.deleteDiscussPost(id);
+
+        String commentable = request.getParameter("commentable");
+
+        // 设置帖子
+
+        newPost.setId(post.getId());
+        newPost.setUserId(currentUser.getId());
+        newPost.setTitle(title);
+        newPost.setMdcontent(mdContent);
+        newPost.setHtmlcontent(htmlContent[0]);
+        newPost.setType(post.getType());
+        newPost.setStatus(post.getStatus());
+        newPost.setCreateTime(post.getCreateTime());
+        newPost.setUpdateTime(new Date());
+        newPost.setCommentable(Integer.valueOf(commentable));
+        newPost.setCommentCount(post.getCommentCount());
+        newPost.setSectionId(sectionId);
+        newPost.setViews(post.getViews());
+        newPost.setScore(post.getScore());
+
+        // 根据文件是否为空设置帖子的附件
+        if (attachFile.isEmpty()) {
+            newPost.setAttachName(post.getAttachName());
+            newPost.setAttachUrl(post.getAttachUrl());
+        } else {
+            Map<String, String> res = uploadAttach(attachFile);
+            newPost.setAttachName(res.get("filename"));
+            newPost.setAttachUrl(res.get("attachUrl"));
+        }
+
+        // 更新
+        discussPostService.updatePost(newPost);
+        // 保存新的数据
+        elasticSearchService.saveDiscussPost(newPost);
+
+        // 计算帖子分数
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, post.getId());
+
+        attributes.addFlashAttribute("publishstatus", 1);
+        attributes.addFlashAttribute("publishmsg", "修改帖子成功！");
+
+        // 后面将统一处理异常
+        return "redirect:/index";
+
     }
 
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
@@ -201,6 +289,99 @@ public class DiscussPostController implements CommunityConstant {
         } catch (Exception e) {
             LOGGER.error("读取图片失败：" + e.getMessage());
         }
+    }
+
+    private Map<String, String> uploadAttach(MultipartFile attachFile) {
+
+        Map<String, String> res = new HashMap<>();
+
+//        System.out.println("attachFile = " + attachFile);
+
+        if (attachFile == null) {
+            return res;
+        }
+
+        // 得到初始的文件名
+        String filename = attachFile.getOriginalFilename();
+
+//        System.out.println("filename = " + filename);
+
+        // 得到文件的后缀名
+        String suffix = null;
+        if (filename.lastIndexOf('.') != -1) {
+            suffix = filename.substring(filename.lastIndexOf('.'));
+        }
+
+//        if (suffix == null) {
+//            return res;
+//        }
+
+        // 将上传文件的文件名存入结果
+        res.put("filename", filename);
+
+        // 生成随机文件名
+        filename = CommunityUtil.generateUUID() + suffix;
+
+        String attachUrl = domain + contextPath + "/discuss/attach/" + filename;
+
+        res.put("attachUrl", attachUrl);
+
+//        for (Map.Entry<String, String> entry : res.entrySet()) {
+//            System.out.println(entry.getKey() + " : " + res.get(entry.getKey()));
+//        }
+
+        // 确定文件存在的路径
+        File dest = new File(uploadAttachDir + "/" + filename);
+
+        try {
+            attachFile.transferTo(dest);
+        } catch (IOException e) {
+            LOGGER.error("上传文件失败：" + e.getMessage());
+            throw new RuntimeException("上传文件失败！服务器发生异常！", e);
+        }
+//
+//        return CommunityUtil.getJsonString(0, "上传附件成功");
+
+        return res;
+
+    }
+
+    @RequestMapping(path = "/attach/{fileName}", method = RequestMethod.GET)
+    public void downloadAttach(@PathVariable(name = "fileName") String fileName, HttpServletResponse response) {
+
+        response.setContentType("application/octet-stream");
+
+        response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+        // 确保IE下也能使用
+        response.setHeader("Pragma", "No-cache");
+        response.setHeader("Cache-Control", "No-cache");
+        response.setDateHeader("Expires", 0);
+
+        // 服务器存放文件的路径
+        fileName = uploadAttachDir + "/" + fileName;
+        System.out.println("fileName = " + fileName);
+
+        try (
+                FileInputStream fis = new FileInputStream(fileName);
+                OutputStream os = response.getOutputStream();
+        ) {
+            byte[] buffer = new byte[1024];
+            int b = 0; // offset
+            while ((b = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, b);
+            }
+        } catch (Exception e) {
+            LOGGER.error("读取文件失败：" + e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(path = "/deleteAttach/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public String deleteAttach(@PathVariable(name = "id") int postId) {
+        discussPostService.updateAttach(postId, null, null);
+        return CommunityUtil.getJsonString(0, "删除附件成功！！！");
     }
 
     // page接收整理分页条件

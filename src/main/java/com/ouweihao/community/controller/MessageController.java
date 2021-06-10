@@ -9,6 +9,7 @@ import com.ouweihao.community.service.UserService;
 import com.ouweihao.community.util.CommunityConstant;
 import com.ouweihao.community.util.CommunityUtil;
 import com.ouweihao.community.util.HostHolder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -156,6 +157,11 @@ public class MessageController implements CommunityConstant {
         // 不能自己给自己发送私信
         if (target.getId() == sender.getId()) {
             return CommunityUtil.getJsonString(1, "不能自己给自己发消息哦！亲~");
+        }
+
+        // 私信内容非空判断
+        if (StringUtils.isBlank(content)) {
+            return CommunityUtil.getJsonString(1, "私信内容不能为空哦！亲~");
         }
 
         Message message = new Message();

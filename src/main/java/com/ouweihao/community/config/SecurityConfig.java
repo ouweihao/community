@@ -23,7 +23,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
     @Override
     public void configure(WebSecurity web) throws Exception {
         // 静态资源全能访问
-        web.ignoring().antMatchers("resource/**");
+        web.ignoring().antMatchers("resources/**");
     }
 
     @Override
@@ -37,7 +37,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                 .antMatchers(
                         "/user/setting",
                         "/user/upload",
+                        "/user/updateVerifyCode",
                         "/discuss/add",
+                        "/discuss/attach/**",
+                        "/discuss/EditorImage/**",
+                        "/add/**",
                         "/comment/add/**",
                         "/letter/**",
                         "/notice/**",

@@ -50,7 +50,7 @@ public class ElasticSearchTests {
 
     @Test
     public void testInsert() {
-        discussPostRepository.save(discussPostMapper.selectDiscussPostById(71));
+        discussPostRepository.save(discussPostMapper.selectDiscussPostById(107));
     }
 
     @Test

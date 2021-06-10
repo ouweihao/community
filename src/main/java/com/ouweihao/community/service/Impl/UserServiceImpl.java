@@ -387,6 +387,8 @@ public class UserServiceImpl implements UserService, CommunityConstant {
                         return AUTHORITY_ADMIN;
                     case 2:
                         return AUTHORITY_MODERATOR;
+                    case 3:
+                        return AUTHORITY_FORBIDDEN;
                     default:
                         return AUTHORITY_USER;
                 }

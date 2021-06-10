@@ -367,7 +367,7 @@
 
             var _this = this;
             var classPrefix = this.classPrefix = editormd.classPrefix;
-            var settings = this.settings = $.extend(true, {}, editormd.defaults, options);
+            var settings = this.settings = $.extend(true, editormd.defaults, options);
 
             id = (typeof id === "object") ? settings.id : id;
 
@@ -3172,9 +3172,7 @@
 
     // Emoji graphics files url path
     editormd.emoji = {
-        // path  : "https://www.webpagefx.com/tools/emoji-cheat-sheet/graphics/emojis/",
-        // path  : "/lib/editormd/plugins/emoji-dialog/emoji",
-        // path  : "http://www.emoji-cheat-sheet.com/graphics/emojis/",
+        path: "http://www.emoji-cheat-sheet.com/graphics/emojis/",
         ext: ".png"
     };
 

@@ -13,6 +13,7 @@ import com.ouweihao.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -87,6 +88,26 @@ public class HomeController implements CommunityConstant {
         model.addAttribute("allPostCount", allPostCount);
 
         return "/index";
+    }
+
+    @RequestMapping(path = "/add/{id}", method = RequestMethod.GET)
+    public String getModifyPage(@PathVariable(name = "id") int id, Model model) {
+        DiscussPost post = discussPostService.findDiscussPostById(id);
+
+        if (hostHolder.getUser() == null) {
+            return "redirect:/index";
+        }
+
+        if (hostHolder.getUser().getId() != post.getUserId()) {
+            return "redirect:/index";
+        }
+
+        model.addAttribute("post", post);
+
+        List<Section> allSections = sectionService.getAllSections();
+        model.addAttribute("sections", allSections);
+
+        return "/site/discusspost_input";
     }
 
     @RequestMapping(path = "/error", method = RequestMethod.GET)

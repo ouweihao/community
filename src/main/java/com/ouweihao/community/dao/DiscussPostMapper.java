@@ -38,4 +38,10 @@ public interface DiscussPostMapper {
 
     int updateViews(int postId, int views);
 
+    int updateAttach(int postId, String attachName, String attachUrl);
+
+    int deleteAttach(int postId);
+
+    int updatePost(DiscussPost post);
+
 }

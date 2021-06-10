@@ -192,6 +192,10 @@ public class UserController implements CommunityConstant {
 
     @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
     public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+
+        User currentUser = hostHolder.getUser();
+        model.addAttribute("currentUser", currentUser);
+
         // 得到用户
         User user = userService.findUserById(userId);
         model.addAttribute("user", user);
