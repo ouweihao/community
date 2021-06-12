@@ -102,4 +102,14 @@ public class DiscussPostServiceImpl implements DiscussPostService {
     public int updatePost(DiscussPost post) {
         return discussPostMapper.updatePost(post);
     }
+
+    @Override
+    public int deletePostBySectionId(int sectionId) {
+        return discussPostMapper.deletePostBySectionId(sectionId);
+    }
+
+    @Override
+    public List<Integer> findSectionDiscussPostId(int sectionId) {
+        return discussPostMapper.selectSectionDiscussPostId(sectionId);
+    }
 }

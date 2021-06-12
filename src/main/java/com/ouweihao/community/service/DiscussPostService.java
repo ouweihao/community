@@ -36,4 +36,8 @@ public interface DiscussPostService {
 
     int updatePost(DiscussPost post);
 
+    int deletePostBySectionId(int sectionId);
+
+    List<Integer> findSectionDiscussPostId(int sectionId);
+
 }

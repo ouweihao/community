@@ -8,11 +8,15 @@ import java.util.List;
 @Mapper
 public interface SectionMapper {
 
+    int selectSectionCount();
+
     int insertSection(Section section);
 
     Section selectSectionById(int id);
 
     Section selectSectionByName(String name);
+
+    List<Section> selectSections(int offset, int limit);
 
     List<Section> getAllSections();
 

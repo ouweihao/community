@@ -60,6 +60,12 @@
 
     </select>
 
+    <select id="selectSectionDiscussPostId" resultType="int">
+        select id
+        from discuss_post
+        where section_id = #{sectionId}
+    </select>
+
     <select id="selectDiscussPostRows" resultType="int">
         select count(id)
         from discuss_post
@@ -138,6 +144,14 @@
             attach_name = #{attachName},
             attach_url  = #{attachUrl}
         where id = #{id}
+    </update>
+
+    <update id="deletePostBySectionId">
+
+        update discuss_post
+        set status = 2
+        where id in (select a.id from (select id from discuss_post where section_id = #{sectionId}) a)
+
     </update>
 
 </mapper>

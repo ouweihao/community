@@ -8,8 +8,13 @@
     <sql id="selectFields">id, name</sql>
 
     <insert id="insertSection" parameterType="Section" keyProperty="id">
-        insert into section value (#{name});
+        insert into section(name) value (#{name});
     </insert>
+
+    <select id="selectSectionCount" resultType="int">
+        select count(id)
+        from section
+    </select>
 
     <select id="selectSectionById" resultType="Section">
         select
@@ -22,6 +27,13 @@
         select id, name
         from section
         where name = #{name}
+    </select>
+
+    <select id="selectSections" resultType="Section">
+        select
+        <include refid="selectFields"/>
+        from section
+        limit #{offset}, #{limit}
     </select>
 
     <select id="getAllSections" resultType="Section">

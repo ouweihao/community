@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -208,7 +209,8 @@
                                     <i class="idea icon"></i>分类
                                 </div>
                                 <div class="right aligned column">
-
+                                    <a class="btn btn-info btn-sm" th:href="@{/section/list}"
+                                       sec:authorize="hasAnyAuthority('admin')">版块管理</a>
                                 </div>
                             </div>
                         </div>

@@ -28,6 +28,8 @@ public interface DiscussPostMapper {
 
     int selectSectionDiscussPostCount(int sectionId);
 
+    List<Integer> selectSectionDiscussPostId(int sectionId);
+
     int updateCommentCount(int id, int commentCount);
 
     int updateType(int postId, int type);
@@ -43,5 +45,7 @@ public interface DiscussPostMapper {
     int deleteAttach(int postId);
 
     int updatePost(DiscussPost post);
+
+    int deletePostBySectionId(int sectionId);
 
 }
