@@ -366,6 +366,18 @@ public class UserServiceImpl implements UserService, CommunityConstant {
 
     }*/
 
+    @Override
+    public int updateType(int userId, int type) {
+        clearCacheUser(userId);
+        return userMapper.updateType(userId, type);
+    }
+
+    @Override
+    public int updateStatus(int userId, int newStatus) {
+        clearCacheUser(userId);
+        return userMapper.updateStatus(userId, newStatus);
+    }
+
     /**
      * 查询用户的权限
      *

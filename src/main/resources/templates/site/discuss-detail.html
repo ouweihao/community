@@ -80,14 +80,24 @@
 				<span th:utext="${post.title}">备战春招，面试刷题跟他复习，一个月全搞定！</span>
 				<div class="float-right">
 					<input type="hidden" id="postId" th:value="${post.id}">
-					<button type="button" class="btn btn-danger btn-sm" th:disabled="${post.type==1}" id="topBtn"
+					<button type="button" class="btn btn-primary btn-sm" th:disabled="${post.type==1}" id="topBtn"
 							sec:authorize="hasAnyAuthority('admin,moderator')">置顶
 					</button>
-					<!--						<button type="button" class="btn btn-danger btn-sm disabled" id="untopBtn">取消置顶</button>-->
-					<button type="button" class="btn btn-danger btn-sm" th:disabled="${post.status==1}"
-							sec:authorize="hasAnyAuthority('admin,moderator')" id="wonderfulBtn">加精
+					<button type="button" class="btn btn-primary btn-sm" th:disabled="${post.type==0}" id="untopBtn"
+							sec:authorize="hasAnyAuthority('admin,moderator')">取消置顶
 					</button>
-					<!--						<button type="button" class="btn btn-danger btn-sm disabled" id="unwonderfulBtn">取消加精</button>-->
+
+
+					<button type="button" class="btn btn-success btn-sm" th:disabled="${post.status==1}"
+							id="wonderfulBtn"
+							sec:authorize="hasAnyAuthority('admin,moderator')">加精
+					</button>
+					<button type="button" class="btn btn-success btn-sm" th:disabled="${post.status==0}"
+							id="unwonderfulBtn"
+							sec:authorize="hasAnyAuthority('admin,moderator')">取消加精
+					</button>
+
+
 					<button type="button" class="btn btn-danger btn-sm" th:disabled="${post.status==2}"
 							sec:authorize="hasAnyAuthority('admin')" id="deleteBtn">删除
 					</button>

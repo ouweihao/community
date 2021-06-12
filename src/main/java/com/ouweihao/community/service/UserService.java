@@ -32,6 +32,10 @@ public interface UserService {
     Map<String, Object> updateEmail(String formerEmail, String updateVerifyCode,
                                     String newEmail, String activationVerifyCode);
 
+    int updateType(int userId, int type);
+
+    int updateStatus(int userId, int newStatus);
+
     /**
      * 返回用户的权限情况
      *

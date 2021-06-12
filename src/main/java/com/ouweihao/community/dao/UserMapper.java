@@ -22,4 +22,6 @@ public interface UserMapper {
 
     int updateEmail(int id, String email);
 
+    int updateType(int userId, int newType);
+
 }

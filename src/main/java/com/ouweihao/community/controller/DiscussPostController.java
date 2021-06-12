@@ -532,6 +532,24 @@ public class DiscussPostController implements CommunityConstant {
         return CommunityUtil.getJsonString(0);
     }
 
+    // 取消置顶
+
+    @RequestMapping(path = "/untop", method = RequestMethod.POST)
+    @ResponseBody
+    public String setUnTop(int postId/*, int type*/) {
+        // 1表示置顶，0表示正常的帖子
+        discussPostService.updateType(postId, 0);
+
+        elasticSearchService.deleteDiscussPost(postId);
+
+        DiscussPost post = discussPostService.findDiscussPostById(postId);
+        post.setType(0);
+
+        elasticSearchService.saveDiscussPost(post);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
     // 加精
 
     @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
@@ -539,6 +557,30 @@ public class DiscussPostController implements CommunityConstant {
     public String setWonderful(int postId) {
         // 1表示帖子加精，0表示正常的帖子
         discussPostService.updateStatus(postId, 1);
+
+        // 触发一次发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setEntityType(ENTITY_POST)
+                .setEntityId(postId)
+                .setUserId(hostHolder.getUser().getId());
+
+        eventProducer.fireEvent(event);
+
+        // 计算帖子分数
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, postId);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 取消加精
+
+    @RequestMapping(path = "/unwonderful", method = RequestMethod.POST)
+    @ResponseBody
+    public String setUnWonderful(int postId) {
+        // 1表示帖子加精，0表示正常的帖子
+        discussPostService.updateStatus(postId, 0);
 
         // 触发一次发帖事件
         Event event = new Event()

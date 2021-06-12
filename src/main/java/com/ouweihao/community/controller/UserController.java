@@ -293,4 +293,78 @@ public class UserController implements CommunityConstant {
 
     }
 
+    // 升为版主
+
+    @RequestMapping(path = "/moderator", method = RequestMethod.POST)
+    @ResponseBody
+    public String moderator(int userId) {
+
+        // 0-普通用户; 1-超级管理员; 2-版主; 3-禁言;
+
+        userService.updateType(userId, 2);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 降为普通用户
+
+    @RequestMapping(path = "/ordinary", method = RequestMethod.POST)
+    @ResponseBody
+    public String ordinary(int userId) {
+
+        // 0-普通用户; 1-超级管理员; 2-版主; 3-禁言;
+
+        userService.updateType(userId, 0);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 踢出
+
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteUser(int userId) {
+
+        // 0-未激活; 1-已激活; 2-因违反规则被禁用;
+        userService.updateStatus(userId, 2);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 解除踢出
+
+    @RequestMapping(path = "/undelete", method = RequestMethod.POST)
+    @ResponseBody
+    public String unDeleteUser(int userId) {
+
+        // 0-未激活; 1-已激活; 2-因违反规则被禁用;
+        userService.updateStatus(userId, 1);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 禁言
+
+    @RequestMapping(path = "/forbid", method = RequestMethod.POST)
+    @ResponseBody
+    public String forbidUser(int userId) {
+
+        // 0-普通用户; 1-超级管理员; 2-版主; 3-禁言;
+        userService.updateType(userId, 3);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
+    // 解除禁言
+
+    @RequestMapping(path = "/unforbid", method = RequestMethod.POST)
+    @ResponseBody
+    public String unForbidUser(int userId) {
+
+        // 0-普通用户; 1-超级管理员; 2-版主; 3-禁言;
+        userService.updateType(userId, 0);
+
+        return CommunityUtil.getJsonString(0);
+    }
+
 }

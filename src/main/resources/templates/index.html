@@ -39,9 +39,12 @@
                             <a class="nav-link" th:href="@{/index}">首页</a>
                         </li>
                         <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser!=null}">
-                            <a class="nav-link position-relative" th:href="@{/letter/list}">消息<span
-                                    class="badge badge-danger" sec:authorize="hasAnyAuthority('admin,moderator,user')"
-                                    th:text="${allUnreadCount>0?allUnreadCount:''}">12</span></a>
+                            <a class="nav-link position-relative"
+                               sec:authorize="hasAnyAuthority('admin,moderator,user')"
+                               th:if="${(loginUser!=null) && (loginUser.status!=3)}"
+                               th:href="@{/letter/list}">消息
+                                <span class="badge badge-danger"
+                                      th:text="${allUnreadCount>0?allUnreadCount:''}">12</span></a>
                         </li>
                         <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
                             <a class="nav-link" th:href="@{/register}">注册</a>
@@ -98,6 +101,7 @@
                             </ul>
                             <a class="btn btn-primary btn-sm position-absolute rt-0 ui button"
                                th:href="@{/discuss/add}"
+                               sec:authorize="hasAnyAuthority('admin,moderator,user')"
                                th:if="${(loginUser!=null) && (loginUser.status!=3)}">我要发布
                                 <!--data-target="#publishModal"-->
                             </a>
@@ -132,6 +136,7 @@
                                               th:if="${map.post.status==1}">精华</span>
                                         <a class="btn btn-info btn-sm float-right"
                                            th:href="@{/add/{id}(id=${map.post.id})}"
+                                           sec:authorize="hasAnyAuthority('admin,moderator,user')"
                                            th:if="${(loginUser!=null) && (loginUser.status!=3) && (loginUser.id == map.post.userId)}">编辑
                                             <!--data-target="#publishModal"-->
                                         </a>

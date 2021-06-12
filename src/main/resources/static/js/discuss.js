@@ -1,7 +1,9 @@
 // 一开始就为publishBtn绑定publish方法
 $(function () {
     $("#topBtn").click(setTop);
+    $("#untopBtn").click(setUnTop);
     $("#wonderfulBtn").click(setWonderful);
+    $("#unwonderfulBtn").click(setUnWonderful);
     $("#deleteBtn").click(setDelete);
 });
 
@@ -33,8 +35,30 @@ function setTop() {
         function (data) {
             data = $.parseJSON(data);
             if (data.code == 0) {
-                $("#topBtn").attr("disabled", "disabled");
+                // $("#topBtn").attr("disabled", "disabled");
                 // $("#deleteBtn").attr("disabled", "disabled");
+                window.location.reload();
+            } else {
+                alert(data.msg);
+            }
+        }
+    )
+
+}
+
+// 取消置顶操作
+function setUnTop() {
+    var postId = $("#postId").val();
+
+    $.post(
+        CONTEXT_PATH + "/discuss/untop",
+        {"postId": postId},
+        function (data) {
+            data = $.parseJSON(data);
+            if (data.code == 0) {
+                // $("#topBtn").attr("disabled", "disabled");
+                // $("#deleteBtn").attr("disabled", "disabled");
+                window.location.reload();
             } else {
                 alert(data.msg);
             }
@@ -53,8 +77,30 @@ function setWonderful() {
         function (data) {
             data = $.parseJSON(data);
             if (data.code == 0) {
-                $("#wonderfulBtn").attr("disabled", "disabled");
+                // $("#wonderfulBtn").attr("disabled", "disabled");
                 // $("#deleteBtn").attr("disabled", "disabled");
+                window.location.reload();
+            } else {
+                alert(data.msg);
+            }
+        }
+    )
+
+}
+
+// 取消加精操作
+function setUnWonderful() {
+    var postId = $("#postId").val();
+
+    $.post(
+        CONTEXT_PATH + "/discuss/unwonderful",
+        {"postId": postId},
+        function (data) {
+            data = $.parseJSON(data);
+            if (data.code == 0) {
+                // $("#wonderfulBtn").attr("disabled", "disabled");
+                // $("#deleteBtn").attr("disabled", "disabled");
+                window.location.reload();
             } else {
                 alert(data.msg);
             }

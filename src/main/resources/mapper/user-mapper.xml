@@ -64,4 +64,10 @@
         where id = #{id};
     </update>
 
+    <update id="updateType">
+        update user
+        set type=#{newType}
+        where id = #{userId}
+    </update>
+
 </mapper>
