@@ -3,6 +3,8 @@ package com.ouweihao.community.dao;
 import com.ouweihao.community.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
 
@@ -23,5 +25,9 @@ public interface UserMapper {
     int updateEmail(int id, String email);
 
     int updateType(int userId, int newType);
+
+    int getUserCount();
+
+    List<User> selectUsers(int offset, int limit);
 
 }

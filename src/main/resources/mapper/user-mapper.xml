@@ -70,4 +70,18 @@
         where id = #{userId}
     </update>
 
+    <select id="getUserCount" resultType="int">
+        select count(id)
+        from user
+        where type != 1
+    </select>
+
+    <select id="selectUsers" resultType="User">
+        select
+        <include refid="selectFields"/>
+        from user
+        where type != 1
+        limit #{offset}, #{limit}
+    </select>
+
 </mapper>

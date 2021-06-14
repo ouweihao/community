@@ -378,6 +378,16 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         return userMapper.updateStatus(userId, newStatus);
     }
 
+    @Override
+    public int getUserCount() {
+        return userMapper.getUserCount();
+    }
+
+    @Override
+    public List<User> findUsers(int offset, int limit) {
+        return userMapper.selectUsers(offset, limit);
+    }
+
     /**
      * 查询用户的权限
      *

@@ -52,6 +52,10 @@
                         <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
                             <a class="nav-link" th:href="@{/login}">登录</a>
                         </li>
+                        <li class="nav-item ml-3 btn-group-vertical"
+                            sec:authorize="hasAnyAuthority('admin,moderator')">
+                            <a class="nav-link" th:href="@{/admin/user/list}">用户管理</a>
+                        </li>
                         <li class="nav-item ml-3 btn-group-vertical dropdown" th:if="${loginUser!=null}">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

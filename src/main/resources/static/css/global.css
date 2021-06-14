@@ -10,15 +10,22 @@ body {
     height: 100%;
 }
 
+a.disabled {
+    pointer-events: none;
+    filter: alpha(opacity=50); /*IE滤镜，透明度50%*/
+    -moz-opacity: 0.5; /*Firefox私有，透明度50%*/
+    opacity: 0.5; /*其他，透明度50%*/
+}
+
 .nk-container {
-	position: relative;
-	height: auto;
-	min-height: 100%;
+    position: relative;
+    height: auto;
+    min-height: 100%;
 }
 
 .container {
-	width: 960px;
-	padding: 0;
+    width: 960px;
+    padding: 0;
 }
 
 header .navbar-brand {

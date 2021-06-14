@@ -98,6 +98,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                     String updateTime = hit.getSourceAsMap().get("updateTime").toString();
                     post.setUpdateTime(new Date(Long.valueOf(updateTime)));
 
+                    String commentable = hit.getSourceAsMap().get("commentable").toString();
+                    post.setCommentCount(Integer.valueOf(commentable));
+
                     String commentCount = hit.getSourceAsMap().get("commentCount").toString();
                     post.setCommentCount(Integer.valueOf(commentCount));
 

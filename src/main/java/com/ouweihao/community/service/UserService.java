@@ -5,6 +5,7 @@ import com.ouweihao.community.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -35,6 +36,10 @@ public interface UserService {
     int updateType(int userId, int type);
 
     int updateStatus(int userId, int newStatus);
+
+    int getUserCount();
+
+    List<User> findUsers(int offset, int limit);
 
     /**
      * 返回用户的权限情况
